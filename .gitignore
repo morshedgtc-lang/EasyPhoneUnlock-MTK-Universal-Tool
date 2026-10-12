@@ -44,3 +44,10 @@ $RECYCLE.BIN/
 
 # Logs
 *.log
+
+# Local databases
+*.db
+*.sqlite3
+
+# Session tokens
+user_session.json

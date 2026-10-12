@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EasyPhoneUnlock - Admin Control Panel</title>
+<link rel="stylesheet" href="/admin/static/css/admin.css">
+</head>
+<body>
+<div id="loginView" class="login-wrap">
+  <div class="login-card">
+    <h1>EASY<span>PHONE</span>UNLOCK</h1>
+    <p class="sub">Admin Control Panel</p>
+    <input id="adminUser" type="text" placeholder="Admin username" value="admin">
+    <input id="adminPass" type="password" placeholder="Password">
+    <button onclick="adminLogin()">Sign In</button>
+    <p id="loginMsg" class="msg"></p>
+  </div>
+</div>
+
+<div id="panelView" class="panel hidden">
+  <header>
+    <h1>Admin Panel</h1>
+    <div class="status-chips">
+      <span id="maintenanceChip" class="chip">Maintenance: OFF</span>
+      <button class="ghost" onclick="logout()">Logout</button>
+    </div>
+  </header>
+
+  <section class="cards">
+    <div class="card"><h3 id="statUsers">0</h3><p>Total Users</p></div>
+    <div class="card"><h3 id="statActive">0</h3><p>Active</p></div>
+    <div class="card"><h3 id="statCredits">0</h3><p>Credits in Circulation</p></div>
+    <div class="card"><h3 id="statHwid">0</h3><p>HWID Activated</p></div>
+  </section>
+
+  <section class="block">
+    <h2>Users &amp; Licenses</h2>
+    <div class="table-wrap">
+      <table id="usersTable">
+        <thead>
+          <tr><th>ID</th><th>Username</th><th>Email</th><th>Credits</th><th>HWID</th><th>IP</th><th>Active</th><th>Admin</th><th>Actions</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="block two-col">
+    <div>
+      <h2>Add Credits</h2>
+      <input id="creditUserId" type="number" placeholder="User ID">
+      <input id="creditAmount" type="number" placeholder="Credits (e.g. 50)">
+      <button onclick="addCredits()">Apply Credits</button>
+      <p id="creditMsg" class="msg"></p>
+    </div>
+    <div>
+      <h2>System Settings</h2>
+      <label>Maintenance Mode</label>
+      <select id="cfgMaintenance"><option value="0">OFF</option><option value="1">ON</option></select>
+      <label>Latest Version</label>
+      <input id="cfgVersion" type="text" placeholder="1.0.0">
+      <label>Announcement</label>
+      <input id="cfgAnnounce" type="text" placeholder="Message to all users">
+      <button onclick="saveConfig()">Save Settings</button>
+      <p id="cfgMsg" class="msg"></p>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>Recent Activity Logs</h2>
+    <div class="table-wrap">
+      <table id="logsTable">
+        <thead><tr><th>ID</th><th>User</th><th>Amount</th><th>Operation</th><th>HWID</th><th>IP</th><th>Time</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+<script src="/admin/static/js/admin.js"></script>
+</body>
+</html>
