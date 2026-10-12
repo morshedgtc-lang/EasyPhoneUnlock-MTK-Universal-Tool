@@ -1,0 +1,6 @@
+# Replace panel.example.com with your real domain. Caddy fetches and renews a
+# Let's Encrypt TLS certificate automatically, so all traffic is HTTPS.
+panel.example.com {
+	encode gzip
+	reverse_proxy api:8000
+}

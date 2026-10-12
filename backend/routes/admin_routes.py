@@ -1,115 +1,101 @@
-from datetime import datetime
-from typing import Optional
-from fastapi import APIRouter, Request, HTTPException
-from pydantic import BaseModel
-from backend.models.db import DatabaseManager
+"""Admin panel API. Admin auth uses the same JWT as users (with an admin claim)."""
+from fastapi import APIRouter, Depends, HTTPException, Request
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from backend.core.database import get_db
+from backend.core.security import (
+    create_access_token,
+    create_refresh_token,
+    verify_password,
+)
+from backend.deps import client_ip, limiter, require_admin
+from backend.models.models import CreditLog, RefreshToken, SystemConfig, User, utcnow
+from backend.schemas import AdminLoginRequest, ConfigRequest, CreditRequest, UserActionRequest
 
 router = APIRouter(prefix="/api/v1/admin", tags=["Admin Panel"])
 
-def require_admin(request: Request):
-    """Simple admin guard via header X-Admin-Token (set at admin login)."""
-    token = request.headers.get("X-Admin-Token", "")
-    conn = DatabaseManager.get_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT value FROM system_config WHERE key = 'admin_session_token'")
-    row = cursor.fetchone()
-    conn.close()
-    if not row or row["value"] != token:
-        raise HTTPException(403, "Admin access denied.")
-    return True
-
-class CreditRequest(BaseModel):
-    user_id: int
-    credits: int
-
-class UserActionRequest(BaseModel):
-    user_id: int
-    action: str  # activate / disable / reset_hwid / delete
-
-class ConfigRequest(BaseModel):
-    key: str
-    value: str
 
 @router.post("/login")
-def admin_login(username: str, password: str):
-    import hashlib
-    conn = DatabaseManager.get_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE username = ? AND is_admin = 1", (username,))
-    user = cursor.fetchone()
-    conn.close()
-    if not user or user["password_hash"] != hashlib.sha256(password.encode()).hexdigest():
+@limiter.limit("10/minute")
+def admin_login(req: AdminLoginRequest, request: Request, db: Session = Depends(get_db)):
+    # Credentials come in the BODY, never the query string.
+    user = db.scalar(select(User).where(User.username == req.username, User.is_admin == True))  # noqa: E712
+    if not user or not verify_password(req.password, user.password_hash):
         raise HTTPException(401, "Invalid admin credentials.")
-    import uuid
-    token = uuid.uuid4().hex
-    conn = DatabaseManager.get_connection()
-    conn.execute("INSERT OR REPLACE INTO system_config (key, value) VALUES ('admin_session_token', ?)", (token,))
-    conn.commit()
-    conn.close()
-    return {"status": "success", "admin_token": token}
+
+    user.last_ip = client_ip(request)
+    user.last_login = utcnow()
+    access = create_access_token(user.id, user.username, user.hwid or "", True)
+    refresh, jti, exp = create_refresh_token(user.id)
+    db.add(RefreshToken(jti=jti, user_id=user.id, expires_at=exp))
+    db.commit()
+    return {"status": "success", "admin_token": access, "refresh_token": refresh}
+
 
 @router.get("/users")
-def list_users(request: Request):
-    require_admin(request)
-    conn = DatabaseManager.get_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, username, email, credits, hwid, is_active, is_admin, last_ip, last_login, created_at FROM users")
-    users = [dict(r) for r in cursor.fetchall()]
-    conn.close()
-    return {"status": "success", "users": users}
+def list_users(admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+    users = db.scalars(select(User)).all()
+    return {"status": "success", "users": [{
+        "id": u.id, "username": u.username, "email": u.email, "credits": u.credits,
+        "hwid": u.hwid, "is_active": u.is_active, "is_admin": u.is_admin,
+        "last_ip": u.last_ip,
+        "last_login": u.last_login.isoformat() if u.last_login else None,
+        "created_at": u.created_at.isoformat() if u.created_at else None,
+    } for u in users]}
+
 
 @router.post("/credits/add")
-def add_credits(req: CreditRequest, request: Request):
-    require_admin(request)
-    conn = DatabaseManager.get_connection()
-    cursor = conn.cursor()
-    cursor.execute("UPDATE users SET credits = credits + ? WHERE id = ?", (req.credits, req.user_id))
-    cursor.execute('''
-        INSERT INTO credit_logs (user_id, amount, operation, hwid, ip, timestamp)
-        VALUES (?, ?, 'ADMIN_ADD', NULL, ?, ?)
-    ''', (req.user_id, req.credits, request.client.host, datetime.utcnow().isoformat()))
-    conn.commit()
-    cursor.execute("SELECT credits FROM users WHERE id = ?", (req.user_id,))
-    credits = cursor.fetchone()["credits"]
-    conn.close()
-    return {"status": "success", "user_id": req.user_id, "new_balance": credits}
+def add_credits(req: CreditRequest, request: Request,
+                admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+    user = db.get(User, req.user_id)
+    if not user:
+        raise HTTPException(404, "User not found.")
+    user.credits += req.credits
+    db.add(CreditLog(user_id=user.id, amount=req.credits, operation="ADMIN_ADD",
+                     hwid=None, ip=client_ip(request)))
+    db.commit()
+    return {"status": "success", "user_id": user.id, "new_balance": user.credits}
+
 
 @router.post("/users/action")
-def user_action(req: UserActionRequest, request: Request):
-    require_admin(request)
-    conn = DatabaseManager.get_connection()
-    cursor = conn.cursor()
+def user_action(req: UserActionRequest, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+    user = db.get(User, req.user_id)
+    if not user:
+        raise HTTPException(404, "User not found.")
     if req.action == "activate":
-        cursor.execute("UPDATE users SET is_active = 1 WHERE id = ?", (req.user_id,))
+        user.is_active = True
     elif req.action == "disable":
-        cursor.execute("UPDATE users SET is_active = 0 WHERE id = ?", (req.user_id,))
+        user.is_active = False
     elif req.action == "reset_hwid":
-        cursor.execute("UPDATE users SET hwid = NULL WHERE id = ?", (req.user_id,))
+        user.hwid = None
     elif req.action == "delete":
-        cursor.execute("DELETE FROM users WHERE id = ? AND is_admin = 0", (req.user_id,))
+        if user.is_admin:
+            raise HTTPException(400, "Cannot delete an admin account.")
+        db.delete(user)
     else:
-        conn.close()
         raise HTTPException(400, "Unknown action.")
-    conn.commit()
-    conn.close()
+    db.commit()
     return {"status": "success", "action": req.action, "user_id": req.user_id}
 
+
 @router.post("/config")
-def set_config(req: ConfigRequest, request: Request):
-    """Admin controls: maintenance_mode (0/1), latest_version, announcement."""
-    require_admin(request)
-    conn = DatabaseManager.get_connection()
-    conn.execute("INSERT OR REPLACE INTO system_config (key, value) VALUES (?, ?)", (req.key, req.value))
-    conn.commit()
-    conn.close()
+def set_config(req: ConfigRequest, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+    row = db.get(SystemConfig, req.key)
+    if row:
+        row.value = req.value
+    else:
+        db.add(SystemConfig(key=req.key, value=req.value))
+    db.commit()
     return {"status": "success", "key": req.key, "value": req.value}
 
+
 @router.get("/logs")
-def credit_logs(request: Request, limit: int = 50):
-    require_admin(request)
-    conn = DatabaseManager.get_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM credit_logs ORDER BY id DESC LIMIT ?", (limit,))
-    logs = [dict(r) for r in cursor.fetchall()]
-    conn.close()
-    return {"status": "success", "logs": logs}
+def credit_logs(limit: int = 50, admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+    limit = max(1, min(limit, 500))
+    rows = db.scalars(select(CreditLog).order_by(CreditLog.id.desc()).limit(limit)).all()
+    return {"status": "success", "logs": [{
+        "id": r.id, "user_id": r.user_id, "amount": r.amount, "operation": r.operation,
+        "hwid": r.hwid, "ip": r.ip,
+        "timestamp": r.timestamp.isoformat() if r.timestamp else None,
+    } for r in rows]}

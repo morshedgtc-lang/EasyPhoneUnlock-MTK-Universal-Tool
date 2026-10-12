@@ -26,6 +26,7 @@ wheels/
 
 # Virtual environments
 venv/
+.venv/
 ENV/
 env/
 
@@ -51,3 +52,8 @@ $RECYCLE.BIN/
 
 # Session tokens
 user_session.json
+
+# Secrets & encrypted payload vault (NEVER commit these)
+.env
+backend/vault/
+*.enc

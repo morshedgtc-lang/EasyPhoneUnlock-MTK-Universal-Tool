@@ -8,8 +8,11 @@ async function adminLogin() {
   msg.className = "msg";
   msg.textContent = "Signing in...";
   try {
-    const url = `${API}/api/v1/admin/login?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
-    const res = await fetch(url, { method: "POST" });
+    const res = await fetch(`${API}/api/v1/admin/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
     const data = await res.json();
     if (res.ok && data.status === "success") {
       ADMIN_TOKEN = data.admin_token;
@@ -39,7 +42,7 @@ function showPanel() {
 }
 
 function authHeaders() {
-  return { "X-Admin-Token": ADMIN_TOKEN, "Content-Type": "application/json" };
+  return { "Authorization": `Bearer ${ADMIN_TOKEN}`, "Content-Type": "application/json" };
 }
 
 async function refreshAll() {
