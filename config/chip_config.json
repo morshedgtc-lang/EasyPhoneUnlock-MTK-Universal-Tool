@@ -1,0 +1,127 @@
+{
+  "chips": {
+    "MT6580": {
+      "hw_code": "0x6580",
+      "hw_sub_code": "0x8a00",
+      "hw_ver": "0xcb00",
+      "sw_ver": "0x0001",
+      "watchdog_base": "0x10007000",
+      "uart_base": "0x11002000",
+      "security_ver": "v1",
+      "arch": "arm32"
+    },
+    "MT6735": {
+      "hw_code": "0x0321",
+      "hw_sub_code": "0x8a00",
+      "hw_ver": "0xcb00",
+      "sw_ver": "0x0001",
+      "watchdog_base": "0x10007000",
+      "security_ver": "v1",
+      "arch": "aarch64"
+    },
+    "MT6739": {
+      "hw_code": "0x0707",
+      "hw_sub_code": "0x8a00",
+      "hw_ver": "0xcb00",
+      "sw_ver": "0x0001",
+      "watchdog_base": "0x10007000",
+      "security_ver": "v2",
+      "arch": "aarch64"
+    },
+    "MT6761": {
+      "hw_code": "0x0717",
+      "hw_sub_code": "0x8a00",
+      "hw_ver": "0xcb00",
+      "sw_ver": "0x0001",
+      "watchdog_base": "0x10007000",
+      "security_ver": "v2",
+      "arch": "aarch64"
+    },
+    "MT6765": {
+      "hw_code": "0x0766",
+      "hw_sub_code": "0x8a00",
+      "hw_ver": "0xca00",
+      "sw_ver": "0x0001",
+      "watchdog_base": "0x10007000",
+      "security_ver": "v3",
+      "arch": "aarch64"
+    },
+    "MT6768": {
+      "hw_code": "0x0707",
+      "hw_sub_code": "0x8a00",
+      "hw_ver": "0xca00",
+      "sw_ver": "0x0001",
+      "watchdog_base": "0x10007000",
+      "security_ver": "v3",
+      "arch": "aarch64"
+    },
+    "MT6785": {
+      "hw_code": "0x0788",
+      "hw_sub_code": "0x8a00",
+      "hw_ver": "0xca00",
+      "sw_ver": "0x0001",
+      "watchdog_base": "0x10007000",
+      "security_ver": "v3",
+      "arch": "aarch64"
+    },
+    "MT6789": {
+      "hw_code": "0x0989",
+      "hw_sub_code": "0x8a00",
+      "hw_ver": "0xca00",
+      "sw_ver": "0x0001",
+      "watchdog_base": "0x10007000",
+      "security_ver": "v4",
+      "arch": "aarch64"
+    },
+    "MT6833": {
+      "hw_code": "0x0816",
+      "hw_sub_code": "0x8a00",
+      "hw_ver": "0xca00",
+      "sw_ver": "0x0001",
+      "watchdog_base": "0x10007000",
+      "security_ver": "v4",
+      "arch": "aarch64"
+    },
+    "MT6877": {
+      "hw_code": "0x0986",
+      "hw_sub_code": "0x8a00",
+      "hw_ver": "0xca00",
+      "sw_ver": "0x0001",
+      "watchdog_base": "0x10007000",
+      "security_ver": "v4",
+      "arch": "aarch64"
+    },
+    "MT6893": {
+      "hw_code": "0x0922",
+      "hw_sub_code": "0x8a00",
+      "hw_ver": "0xca00",
+      "sw_ver": "0x0001",
+      "watchdog_base": "0x10007000",
+      "security_ver": "v4",
+      "arch": "aarch64"
+    },
+    "MT6983": {
+      "hw_code": "0x0983",
+      "hw_sub_code": "0x8a00",
+      "hw_ver": "0xca00",
+      "sw_ver": "0x0001",
+      "watchdog_base": "0x10007000",
+      "security_ver": "v5",
+      "arch": "aarch64"
+    }
+  },
+  "usb_identifiers": {
+    "bootrom": {
+      "vid": "0x0e8d",
+      "pid": "0x0003"
+    },
+    "preloader": {
+      "vid": "0x0e8d",
+      "pid": "0x2000"
+    },
+    "da_vcom": {
+      "vid": "0x0e8d",
+      "pid": "0x2001"
+    }
+  }
+}
