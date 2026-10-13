@@ -33,6 +33,26 @@ WORKFLOWS = {
 }
 
 
+class FirmwareLoadWorker(QThread):
+    """Decrypt/unpack a firmware file (OFP/scatter) off the UI thread."""
+    log = pyqtSignal(str, str)
+    done = pyqtSignal(object, str)   # (LoadedFirmware | None, error_message)
+
+    def __init__(self, path: str, extract_root: str):
+        super().__init__()
+        self.path = path
+        self.extract_root = extract_root
+
+    def run(self):
+        try:
+            from src.core.firmware import loader
+            fw = loader.load(self.path, self.extract_root,
+                             log=lambda m: self.log.emit("step", m))
+            self.done.emit(fw, "")
+        except Exception as e:
+            self.done.emit(None, str(e))
+
+
 class DeviceInfoWorker(QThread):
     """Connect in BootROM mode and read chip identity. Read-only / safe."""
     log = pyqtSignal(str, str)

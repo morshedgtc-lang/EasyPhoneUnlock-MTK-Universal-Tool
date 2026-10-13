@@ -16,7 +16,7 @@ from src.core import devices
 from src.core.safety import is_protected
 from src.core.scatter.scatter_parser import ScatterParser
 from src.gui.theme import QSS, apply_acrylic
-from src.gui.worker import WORKFLOWS, DeviceInfoWorker, OperationWorker
+from src.gui.worker import WORKFLOWS, DeviceInfoWorker, FirmwareLoadWorker, OperationWorker
 
 SENSITIVE = {"FRP_RESET", "NETWORK_UNLOCK", "IMEI_REPAIR", "BOOTLOADER_UNLOCK", "BACKUP_SECURITY"}
 SERVER_DEFAULT = "http://127.0.0.1:8000"
@@ -72,6 +72,7 @@ class MainWindow(QWidget):
         self._drag = None
         self.worker: OperationWorker | None = None
         self.info_worker: DeviceInfoWorker | None = None
+        self.fw_worker: FirmwareLoadWorker | None = None
         self.scatter_partitions = []
         self.device_info: dict = {}
 
@@ -293,16 +294,31 @@ class MainWindow(QWidget):
     def _load_firmware(self):
         path, _ = QFileDialog.getOpenFileName(
             self, "Select scatter / flash file", "",
-            "Scatter files (*scatter*.txt *.xml *.yaml);;All files (*.*)")
+            "Flash files (*scatter*.txt *.xml *.yaml *.ofp *.ozip);;All files (*.*)")
         if not path:
             return
-        try:
-            self.scatter_partitions = ScatterParser.parse_file(path)
-        except Exception as e:
-            QMessageBox.critical(self, "Scatter error", f"Could not parse file:\n{e}")
+        if self.fw_worker and self.fw_worker.isRunning():
             return
-        self.fw_lbl.setText(f"Loaded {len(self.scatter_partitions)} partitions from:\n{path.split('/')[-1]}")
-        self._log("ok", f"Firmware loaded: {len(self.scatter_partitions)} partitions.")
+        from src.core.paths import cache_dir
+        extract_root = f"{cache_dir()}/firmware"
+        self.fw_lbl.setText("Loading firmware...")
+        self._log("info", f"Loading {path.split('/')[-1]} ...")
+        self.fw_worker = FirmwareLoadWorker(path, extract_root)
+        self.fw_worker.log.connect(self._log)
+        self.fw_worker.done.connect(self._on_firmware_loaded)
+        self.fw_worker.start()
+
+    def _on_firmware_loaded(self, fw, error):
+        if error or fw is None:
+            self.fw_lbl.setText("Firmware load failed")
+            QMessageBox.critical(self, "Firmware error", error or "Unknown error")
+            self._log("err", f"Firmware load failed: {error}")
+            return
+        self.scatter_partitions = fw.partitions
+        self.fw_lbl.setText(f"[{fw.format.upper()}] {len(fw.partitions)} partitions loaded")
+        self._log("ok", f"Firmware loaded ({fw.format.upper()}): {len(fw.partitions)} partitions.")
+        for n in fw.notes:
+            self._log("warn", n)
         self._populate_partitions()
 
     def _populate_partitions(self):
