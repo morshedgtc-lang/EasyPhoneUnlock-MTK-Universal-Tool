@@ -1,0 +1,48 @@
+{
+  "_comment": "Brand -> models registry. Each model lists its MTK chip and which operations are offered. Expand freely; the GUI reads this at startup.",
+  "brands": {
+    "Xiaomi": {
+      "models": {
+        "Redmi Note 10 (mojito)": {"chip": "MT6765", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "NETWORK_UNLOCK", "BACKUP_FLASH", "BACKUP_SECURITY", "IMEI_REPAIR"]},
+        "Redmi 9 (lancelot)": {"chip": "MT6768", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "BACKUP_FLASH", "BACKUP_SECURITY"]},
+        "Redmi 10C (fog)": {"chip": "MT6765", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "NETWORK_UNLOCK", "BACKUP_FLASH"]}
+      }
+    },
+    "Samsung": {
+      "models": {
+        "Galaxy A04 (SM-A045F)": {"chip": "MT6765", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "BACKUP_FLASH", "BACKUP_SECURITY"]},
+        "Galaxy A14 (SM-A145F)": {"chip": "MT6769", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "NETWORK_UNLOCK", "BACKUP_FLASH"]}
+      }
+    },
+    "Oppo": {
+      "models": {
+        "A16 (CPH2269)": {"chip": "MT6765", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "BACKUP_FLASH", "BACKUP_SECURITY"]},
+        "A54 (CPH2239)": {"chip": "MT6768", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "NETWORK_UNLOCK", "BACKUP_FLASH"]}
+      }
+    },
+    "Vivo": {
+      "models": {
+        "Y21 (V2111)": {"chip": "MT6765", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "BACKUP_FLASH"]},
+        "Y33s (V2109)": {"chip": "MT6768", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "NETWORK_UNLOCK", "BACKUP_SECURITY"]}
+      }
+    },
+    "Realme": {
+      "models": {
+        "C25 (RMX3191)": {"chip": "MT6768", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "BACKUP_FLASH", "BACKUP_SECURITY"]},
+        "C11 (RMX3231)": {"chip": "MT6765", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "BACKUP_FLASH"]}
+      }
+    },
+    "Tecno": {
+      "models": {
+        "Spark 8C (KG5k)": {"chip": "MT6761", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "BACKUP_FLASH"]},
+        "Camon 18 (CH6n)": {"chip": "MT6785", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "NETWORK_UNLOCK", "IMEI_REPAIR"]}
+      }
+    },
+    "Infinix": {
+      "models": {
+        "Hot 11 (X662)": {"chip": "MT6765", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "BACKUP_FLASH"]},
+        "Note 12 (X670)": {"chip": "MT6789", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "NETWORK_UNLOCK", "IMEI_REPAIR", "BACKUP_SECURITY"]}
+      }
+    }
+  }
+}

@@ -82,6 +82,29 @@ class Operation(Base):
     closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
+class AuditLog(Base):
+    """
+    Traceability record for sensitive operations (FRP reset, network unlock,
+    IMEI repair, ...). Captures who did what to which device from where, so the
+    owner can trace misuse. Written at authorize time for sensitive ops.
+    """
+    __tablename__ = "audit_logs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    username: Mapped[str] = mapped_column(String(64), index=True)
+    operation: Mapped[str] = mapped_column(String(64), index=True)
+    brand: Mapped[str] = mapped_column(String(64), default="")
+    model: Mapped[str] = mapped_column(String(128), default="")
+    imei: Mapped[str] = mapped_column(String(32), default="", index=True)
+    serial: Mapped[str] = mapped_column(String(64), default="", index=True)
+    ip: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    hwid: Mapped[str] = mapped_column(String(128), default="")
+    consent: Mapped[bool] = mapped_column(Boolean, default=False)
+    device_info: Mapped[str] = mapped_column(Text, default="")
+    timestamp: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
 class RefreshToken(Base):
     __tablename__ = "refresh_tokens"
 

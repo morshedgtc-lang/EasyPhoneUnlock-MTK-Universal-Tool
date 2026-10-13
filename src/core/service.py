@@ -43,15 +43,23 @@ class OperationRunner:
         payload_names: List[str],
         executor: Callable[[Dict[str, str]], None],
         device_info: str = "",
+        brand: str = "",
+        model: str = "",
+        imei: str = "",
+        serial: str = "",
+        consent: bool = False,
     ) -> OperationResult:
         """
         operation    - server operation key (e.g. "SLA_BYPASS")
         payload_names- vault payloads this op needs (e.g. ["da1", "da2"])
         executor     - callable given {name: local_path} of fetched payloads;
                        does the real device work and raises on any failure.
+        brand/model/imei/serial/consent - audit fields for sensitive operations.
         """
         # 1. Authorize (server deducts credit, returns grant)
-        auth = self.lic.authorize_operation(operation, device_info)
+        auth = self.lic.authorize_operation(operation, device_info, brand=brand,
+                                            model=model, imei=imei, serial=serial,
+                                            consent=consent)
         if auth.get("status") != "success":
             return OperationResult(False, operation,
                                    auth.get("detail") or auth.get("message", "Authorization failed."))

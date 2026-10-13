@@ -10,7 +10,7 @@ from backend.core.security import (
     verify_password,
 )
 from backend.deps import client_ip, limiter, require_admin
-from backend.models.models import CreditLog, RefreshToken, SystemConfig, User, utcnow
+from backend.models.models import AuditLog, CreditLog, RefreshToken, SystemConfig, User, utcnow
 from backend.schemas import AdminLoginRequest, ConfigRequest, CreditRequest, UserActionRequest
 
 router = APIRouter(prefix="/api/v1/admin", tags=["Admin Panel"])
@@ -88,6 +88,29 @@ def set_config(req: ConfigRequest, admin: User = Depends(require_admin), db: Ses
         db.add(SystemConfig(key=req.key, value=req.value))
     db.commit()
     return {"status": "success", "key": req.key, "value": req.value}
+
+
+@router.get("/audit")
+def audit_trail(limit: int = 100, imei: str = "", serial: str = "", username: str = "",
+                operation: str = "", admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+    """Trace sensitive operations. Filter by imei / serial / username / operation."""
+    limit = max(1, min(limit, 1000))
+    q = select(AuditLog).order_by(AuditLog.id.desc())
+    if imei:
+        q = q.where(AuditLog.imei == imei)
+    if serial:
+        q = q.where(AuditLog.serial == serial)
+    if username:
+        q = q.where(AuditLog.username == username)
+    if operation:
+        q = q.where(AuditLog.operation == operation)
+    rows = db.scalars(q.limit(limit)).all()
+    return {"status": "success", "entries": [{
+        "id": r.id, "user_id": r.user_id, "username": r.username, "operation": r.operation,
+        "brand": r.brand, "model": r.model, "imei": r.imei, "serial": r.serial,
+        "ip": r.ip, "hwid": r.hwid, "consent": r.consent,
+        "timestamp": r.timestamp.isoformat() if r.timestamp else None,
+    } for r in rows]}
 
 
 @router.get("/logs")

@@ -13,10 +13,10 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from backend.core.database import get_db
-from backend.core.operations import OPERATION_COSTS, cost_of, is_known
+from backend.core.operations import OPERATION_COSTS, cost_of, is_known, is_sensitive
 from backend.core.security import create_operation_grant, new_nonce
 from backend.deps import client_ip, get_current_user
-from backend.models.models import CreditLog, Operation, SystemConfig, User, utcnow
+from backend.models.models import AuditLog, CreditLog, Operation, SystemConfig, User, utcnow
 from backend.schemas import AuthorizeRequest, ResultRequest
 
 router = APIRouter(prefix="/api/v1", tags=["Operations"])
@@ -36,6 +36,14 @@ def authorize(req: AuthorizeRequest, request: Request,
         raise HTTPException(400, "Unknown operation.")
     if user.hwid and req.hwid != user.hwid:
         raise HTTPException(403, "HWID mismatch for this operation.")
+
+    # Sensitive operations require consent + a device identifier, and are
+    # recorded in the audit trail for traceability.
+    if is_sensitive(req.operation):
+        if not req.consent:
+            raise HTTPException(400, "This operation requires technician consent.")
+        if not (req.imei or req.serial):
+            raise HTTPException(400, "This operation requires the device IMEI or serial number.")
 
     cost = cost_of(req.operation)
 
@@ -59,6 +67,13 @@ def authorize(req: AuthorizeRequest, request: Request,
     db.add(CreditLog(
         user_id=locked.id, amount=-cost, operation=req.operation, hwid=req.hwid, ip=ip,
     ))
+    if is_sensitive(req.operation):
+        db.add(AuditLog(
+            user_id=locked.id, username=locked.username, operation=req.operation,
+            brand=req.brand[:64], model=req.model[:128], imei=req.imei[:32],
+            serial=req.serial[:64], ip=ip, hwid=req.hwid, consent=req.consent,
+            device_info=req.device_info[:2000],
+        ))
     db.commit()
 
     grant = create_operation_grant(locked.id, req.operation, req.hwid, nonce)

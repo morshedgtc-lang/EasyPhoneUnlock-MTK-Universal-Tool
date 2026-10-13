@@ -30,6 +30,14 @@ class AuthorizeRequest(BaseModel):
     operation: str
     hwid: str
     device_info: str = ""
+    # For sensitive operations (FRP, network unlock, IMEI repair) these are
+    # required: the technician must have confirmed consent and supplied the
+    # device IMEI or serial. The server records them in the audit trail.
+    brand: str = ""
+    model: str = ""
+    imei: str = ""
+    serial: str = ""
+    consent: bool = False
 
 
 class ResultRequest(BaseModel):

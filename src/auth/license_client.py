@@ -125,17 +125,22 @@ class LicenseClient:
     def credits(self) -> int:
         return int(self.user_data.get("credits", 0))
 
-    def authorize_operation(self, operation: str, device_info: str = "") -> Dict[str, Any]:
+    def authorize_operation(self, operation: str, device_info: str = "", brand: str = "",
+                            model: str = "", imei: str = "", serial: str = "",
+                            consent: bool = False) -> Dict[str, Any]:
         """
         Ask the server to authorize ONE paid operation. On success the server
         has already deducted the credit and returns a short-lived grant + nonce.
+        Sensitive operations require consent + imei/serial (recorded server-side).
         """
         if not self.access_token:
             return {"status": "error", "message": "Not logged in."}
         try:
             r = self._authed_request("POST", "/api/v1/operations/authorize",
                                      json={"operation": operation, "hwid": self.hwid,
-                                           "device_info": device_info})
+                                           "device_info": device_info, "brand": brand,
+                                           "model": model, "imei": imei, "serial": serial,
+                                           "consent": consent})
             data = r.json()
             if r.status_code == 200 and "remaining_credits" in data:
                 self.user_data["credits"] = data["remaining_credits"]

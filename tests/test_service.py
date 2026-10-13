@@ -10,7 +10,7 @@ class FakeLicense:
         self.reported = []
         self.payloads_fetched = []
 
-    def authorize_operation(self, operation, device_info=""):
+    def authorize_operation(self, operation, device_info="", **kwargs):
         if self._credits < 1:
             return {"status": "error", "message": "Insufficient credits."}
         self._credits -= 1

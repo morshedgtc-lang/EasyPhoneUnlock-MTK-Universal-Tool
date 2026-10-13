@@ -1,18 +1,14 @@
 """Lookup helpers over config/chip_config.json (hw_code <-> chipset name)."""
 import json
-import os
 from functools import lru_cache
 from typing import Optional
 
-_CONFIG = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-    "config", "chip_config.json",
-)
+from src.core.paths import config_path
 
 
 @lru_cache
 def _load() -> dict:
-    with open(_CONFIG, "r", encoding="utf-8") as f:
+    with open(config_path("chip_config.json"), "r", encoding="utf-8") as f:
         return json.load(f)
 
 
