@@ -11,7 +11,7 @@ from slowapi.errors import RateLimitExceeded
 from backend.core.bootstrap import init_db
 from backend.core.config import settings
 from backend.deps import limiter
-from backend.routes import admin_routes, auth_routes, operations_routes, payloads_routes
+from backend.routes import admin_routes, auth_routes, catalog_routes, operations_routes, payloads_routes
 
 
 @asynccontextmanager
@@ -45,6 +45,7 @@ app.include_router(auth_routes.router)
 app.include_router(admin_routes.router)
 app.include_router(operations_routes.router)
 app.include_router(payloads_routes.router)
+app.include_router(catalog_routes.router)
 
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "admin_web")
 if os.path.isdir(os.path.join(STATIC_DIR, "static")):

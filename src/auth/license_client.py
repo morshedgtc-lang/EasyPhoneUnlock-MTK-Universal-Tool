@@ -183,6 +183,36 @@ class LicenseClient:
             f.write(r.content)
         return path
 
+    def sync_catalog(self) -> Dict[str, Any]:
+        """
+        Pull the chip + device catalog from the server into the local cache, so
+        technicians get new devices/chips without a new EXE. Falls back silently
+        to the bundled catalog if the server is unreachable.
+        """
+        import json as _json
+        from src.core.paths import cache_dir
+
+        results = {}
+        for name, fname in (("chips", "chip_config.json"), ("devices", "device_models.json")):
+            try:
+                r = requests.get(f"{self.server_url}/api/v1/catalog/{name}", timeout=15)
+                if r.status_code == 200:
+                    with open(os.path.join(cache_dir(), fname), "w", encoding="utf-8") as f:
+                        _json.dump(r.json(), f, indent=2)
+                    results[name] = "updated"
+                else:
+                    results[name] = f"skip ({r.status_code})"
+            except Exception as e:
+                results[name] = f"offline ({e})"
+        # Refresh the in-memory loaders so new data is used immediately.
+        try:
+            from src.core import chipdb, devices
+            chipdb._load.cache_clear()
+            devices._load.cache_clear()
+        except Exception:
+            pass
+        return {"status": "success", "catalog": results}
+
     def check_system_status(self, current_version: str = "1.0.0") -> Dict[str, Any]:
         try:
             r = requests.get(f"{self.server_url}/api/v1/system/status",

@@ -1,113 +1,744 @@
 {
+  "_source": "MediaTek BROM hw_code table (mtkclient, GPLv3) + EPU additions",
   "chips": {
-    "MT6580": {
-      "hw_code": "0x6580",
-      "hw_sub_code": "0x8a00",
-      "hw_ver": "0xcb00",
-      "sw_ver": "0x0001",
+    "MT0571": {
+      "name": "MT0571",
+      "aliases": "MT0571",
+      "hw_code": "0x0571",
+      "arch": "arm32",
+      "watchdog_base": "0x10007000"
+    },
+    "MT0598 (Elbrus)": {
+      "name": "MT0598 (Elbrus)",
+      "aliases": "MT0598 (Elbrus)",
+      "hw_code": "0x0598",
+      "arch": "aarch64",
+      "watchdog_base": "0x10211000",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10224000"
+    },
+    "MT6261": {
+      "name": "MT6261",
+      "aliases": "MT6261/MT2503",
+      "hw_code": "0x6261",
+      "arch": "arm32",
+      "watchdog_base": "0xA0030000",
+      "var1": "0x28",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00"
+    },
+    "MT2601": {
+      "name": "MT2601",
+      "aliases": "MT2601",
+      "hw_code": "0x2601",
+      "arch": "aarch64",
       "watchdog_base": "0x10007000",
-      "uart_base": "0x11002000",
-      "security_ver": "v1",
-      "arch": "arm32"
+      "var1": "0xA",
+      "da_payload_addr": "0x2008000",
+      "brom_payload_addr": "0x100A00"
+    },
+    "MT2523": {
+      "name": "MT2523",
+      "aliases": "MT2523",
+      "hw_code": "0x2523",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x2008000",
+      "brom_payload_addr": "0x100A00"
+    },
+    "MT2625": {
+      "name": "MT2625",
+      "aliases": "MT2625",
+      "hw_code": "0x2625",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "da_payload_addr": "0x4001000",
+      "brom_payload_addr": "0x100A00"
+    },
+    "MT6516": {
+      "name": "MT6516",
+      "aliases": "MT6516",
+      "hw_code": "0x6516",
+      "arch": "arm32",
+      "watchdog_base": "0x10003000",
+      "da_payload_addr": "0x201000"
+    },
+    "MT6570": {
+      "name": "MT6570",
+      "aliases": "MT6570/MT8321",
+      "hw_code": "0x0633",
+      "arch": "arm32",
+      "watchdog_base": "0x10007000",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x1020D000"
+    },
+    "MT6571": {
+      "name": "MT6571",
+      "aliases": "MT6571",
+      "hw_code": "0x6571",
+      "arch": "arm32",
+      "watchdog_base": "0x10007400",
+      "da_payload_addr": "0x2009000"
+    },
+    "MT6572": {
+      "name": "MT6572",
+      "aliases": "MT6572",
+      "hw_code": "0x6572",
+      "arch": "arm32",
+      "watchdog_base": "0x10007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x2008000",
+      "brom_payload_addr": "0x10036A0"
+    },
+    "MT6573": {
+      "name": "MT6573",
+      "aliases": "MT6573/MT6260",
+      "hw_code": "0x6573",
+      "arch": "arm32",
+      "watchdog_base": "0x70025000",
+      "da_payload_addr": "0x90006000"
+    },
+    "MT6575": {
+      "name": "MT6575",
+      "aliases": "MT6575/MT8317",
+      "hw_code": "0x6575",
+      "arch": "arm32",
+      "watchdog_base": "0xC0000000",
+      "da_payload_addr": "0xC2001000",
+      "brom_payload_addr": "0xF0000A00"
+    },
+    "MT6577": {
+      "name": "MT6577",
+      "aliases": "MT6577",
+      "hw_code": "0x6577",
+      "arch": "arm32",
+      "watchdog_base": "0xC0000000",
+      "da_payload_addr": "0xC2001000"
+    },
+    "MT6580": {
+      "name": "MT6580",
+      "aliases": "MT6580",
+      "hw_code": "0x6580",
+      "arch": "arm32",
+      "watchdog_base": "0x10007000",
+      "var1": "0xAC",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00"
+    },
+    "MT6582": {
+      "name": "MT6582",
+      "aliases": "MT6582/MT6574/MT8382",
+      "hw_code": "0x6582",
+      "arch": "arm32",
+      "watchdog_base": "0x10007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x1101B000"
+    },
+    "MT6583": {
+      "name": "MT6583",
+      "aliases": "MT6583/MT6589",
+      "hw_code": "0x6583",
+      "arch": "arm32",
+      "watchdog_base": "0x10000000",
+      "da_payload_addr": "0x12001000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10210000"
+    },
+    "MT6592": {
+      "name": "MT6592",
+      "aliases": "MT6592/MT8392",
+      "hw_code": "0x6592",
+      "arch": "arm32",
+      "watchdog_base": "0x10007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x111000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10210000"
+    },
+    "MT6595": {
+      "name": "MT6595",
+      "aliases": "MT6595",
+      "hw_code": "0x6595",
+      "arch": "arm32",
+      "watchdog_base": "0x10007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x111000",
+      "brom_payload_addr": "0x100A00"
     },
     "MT6735": {
+      "name": "MT6735",
+      "aliases": "MT6735/MT8735A",
       "hw_code": "0x0321",
-      "hw_sub_code": "0x8a00",
-      "hw_ver": "0xcb00",
-      "sw_ver": "0x0001",
-      "watchdog_base": "0x10007000",
-      "security_ver": "v1",
-      "arch": "aarch64"
+      "arch": "aarch64",
+      "watchdog_base": "0x10212000",
+      "var1": "0x28",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10216000"
+    },
+    "MT6737M": {
+      "name": "MT6737M",
+      "aliases": "MT6737M/MT6735G",
+      "hw_code": "0x0335",
+      "arch": "aarch64",
+      "watchdog_base": "0x10212000",
+      "var1": "0x28",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10216000"
     },
     "MT6739": {
-      "hw_code": "0x0707",
-      "hw_sub_code": "0x8a00",
-      "hw_ver": "0xcb00",
-      "sw_ver": "0x0001",
+      "name": "MT6739",
+      "aliases": "MT6739/MT6731/MT8765",
+      "hw_code": "0x0699",
+      "arch": "aarch64",
       "watchdog_base": "0x10007000",
-      "security_ver": "v2",
-      "arch": "aarch64"
+      "var1": "0xB4",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10050000"
+    },
+    "MT6750": {
+      "name": "MT6750",
+      "aliases": "MT6750",
+      "hw_code": "0x0601",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10210000"
+    },
+    "MT6752": {
+      "name": "MT6752",
+      "aliases": "MT6752",
+      "hw_code": "0x6752",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "var1": "0x28",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10210000"
+    },
+    "MT6753": {
+      "name": "MT6753",
+      "aliases": "MT6753",
+      "hw_code": "0x0337",
+      "arch": "aarch64",
+      "watchdog_base": "0x10212000",
+      "var1": "0x28",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10216000"
+    },
+    "MT6755": {
+      "name": "MT6755",
+      "aliases": "MT6755/MT6750",
+      "hw_code": "0x0326",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10210000"
+    },
+    "MT6757": {
+      "name": "MT6757",
+      "aliases": "MT6757/MT6757D",
+      "hw_code": "0x0551",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10210000"
+    },
+    "MT6758": {
+      "name": "MT6758",
+      "aliases": "MT6758",
+      "hw_code": "0x0688",
+      "arch": "aarch64",
+      "watchdog_base": "0x10211000",
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10050000"
+    },
+    "MT6759": {
+      "name": "MT6759",
+      "aliases": "MT6759",
+      "hw_code": "0x0507",
+      "arch": "aarch64",
+      "watchdog_base": "0x10210000",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10210000"
     },
     "MT6761": {
+      "name": "MT6761",
+      "aliases": "MT6761/MT6762/MT8766B/MT8761",
       "hw_code": "0x0717",
-      "hw_sub_code": "0x8a00",
-      "hw_ver": "0xcb00",
-      "sw_ver": "0x0001",
+      "arch": "aarch64",
       "watchdog_base": "0x10007000",
-      "security_ver": "v2",
-      "arch": "aarch64"
+      "var1": "0x25",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10050000"
+    },
+    "MT6763": {
+      "name": "MT6763",
+      "aliases": "MT6763",
+      "hw_code": "0x0690",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "var1": "0x7F",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10050000"
     },
     "MT6765": {
+      "name": "MT6765",
+      "aliases": "MT6765/MT8768T",
       "hw_code": "0x0766",
-      "hw_sub_code": "0x8a00",
-      "hw_ver": "0xca00",
-      "sw_ver": "0x0001",
+      "arch": "aarch64",
       "watchdog_base": "0x10007000",
-      "security_ver": "v3",
-      "arch": "aarch64"
+      "var1": "0x25",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10050000"
     },
     "MT6768": {
+      "name": "MT6768",
+      "aliases": "MT6768/MT6769",
       "hw_code": "0x0707",
-      "hw_sub_code": "0x8a00",
-      "hw_ver": "0xca00",
-      "sw_ver": "0x0001",
+      "arch": "aarch64",
       "watchdog_base": "0x10007000",
-      "security_ver": "v3",
-      "arch": "aarch64"
+      "var1": "0x25",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10050000"
+    },
+    "MT6771": {
+      "name": "MT6771",
+      "aliases": "MT6771/MT8385/MT8183",
+      "hw_code": "0x0788",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10050000"
+    },
+    "MT6779": {
+      "name": "MT6779",
+      "aliases": "MT6779",
+      "hw_code": "0x0725",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10050000"
+    },
+    "MT6781": {
+      "name": "MT6781",
+      "aliases": "MT6781",
+      "hw_code": "0x1066",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "var1": "0x73",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10050000"
     },
     "MT6785": {
-      "hw_code": "0x0788",
-      "hw_sub_code": "0x8a00",
-      "hw_ver": "0xca00",
-      "sw_ver": "0x0001",
+      "name": "MT6785",
+      "aliases": "MT6785",
+      "hw_code": "0x0813",
+      "arch": "aarch64",
       "watchdog_base": "0x10007000",
-      "security_ver": "v3",
-      "arch": "aarch64"
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10050000"
+    },
+    "MT6795": {
+      "name": "MT6795",
+      "aliases": "MT6795",
+      "hw_code": "0x6795",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x110000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10210000"
+    },
+    "MT6797": {
+      "name": "MT6797",
+      "aliases": "MT6797/MT6767",
+      "hw_code": "0x0279",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10210000"
+    },
+    "MT6799": {
+      "name": "MT6799",
+      "aliases": "MT6799",
+      "hw_code": "0x0562",
+      "arch": "aarch64",
+      "watchdog_base": "0x10211000",
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10210000"
     },
     "MT6789": {
-      "hw_code": "0x0989",
-      "hw_sub_code": "0x8a00",
-      "hw_ver": "0xca00",
-      "sw_ver": "0x0001",
+      "name": "MT6789",
+      "aliases": "MT6789/MT8781V",
+      "hw_code": "0x1208",
+      "arch": "aarch64",
       "watchdog_base": "0x10007000",
-      "security_ver": "v4",
-      "arch": "aarch64"
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00"
     },
     "MT6833": {
-      "hw_code": "0x0816",
-      "hw_sub_code": "0x8a00",
-      "hw_ver": "0xca00",
-      "sw_ver": "0x0001",
+      "name": "MT6833",
+      "aliases": "MT6833",
+      "hw_code": "0x0989",
+      "arch": "aarch64",
       "watchdog_base": "0x10007000",
-      "security_ver": "v4",
-      "arch": "aarch64"
+      "var1": "0x73",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10050000"
+    },
+    "MT6853": {
+      "name": "MT6853",
+      "aliases": "MT6853",
+      "hw_code": "0x0996",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10050000"
+    },
+    "MT6873": {
+      "name": "MT6873",
+      "aliases": "MT6873",
+      "hw_code": "0x0886",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10050000"
     },
     "MT6877": {
-      "hw_code": "0x0986",
-      "hw_sub_code": "0x8a00",
-      "hw_ver": "0xca00",
-      "sw_ver": "0x0001",
+      "name": "MT6877",
+      "aliases": "MT6877/MT8791N",
+      "hw_code": "0x0959",
+      "arch": "aarch64",
       "watchdog_base": "0x10007000",
-      "security_ver": "v4",
-      "arch": "aarch64"
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10050000"
     },
-    "MT6893": {
-      "hw_code": "0x0922",
-      "hw_sub_code": "0x8a00",
-      "hw_ver": "0xca00",
-      "sw_ver": "0x0001",
+    "MT6885": {
+      "name": "MT6885",
+      "aliases": "MT6885/MT6883/MT6889",
+      "hw_code": "0x0816",
+      "arch": "aarch64",
       "watchdog_base": "0x10007000",
-      "security_ver": "v4",
-      "arch": "aarch64"
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10050000"
+    },
+    "MT6891": {
+      "name": "MT6891",
+      "aliases": "MT6891/MT6893",
+      "hw_code": "0x0950",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10050000"
+    },
+    "MT6855": {
+      "name": "MT6855",
+      "aliases": "MT6855",
+      "hw_code": "0x1129",
+      "arch": "aarch64",
+      "watchdog_base": "0x1C007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10050000"
     },
     "MT6983": {
-      "hw_code": "0x0983",
-      "hw_sub_code": "0x8a00",
-      "hw_ver": "0xca00",
-      "sw_ver": "0x0001",
+      "name": "MT6983",
+      "aliases": "MT6983",
+      "hw_code": "0x0907",
+      "arch": "aarch64",
+      "watchdog_base": "0x1C007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10050000"
+    },
+    "MT6895": {
+      "name": "MT6895",
+      "aliases": "MT6895",
+      "hw_code": "0x1172",
+      "arch": "aarch64",
+      "watchdog_base": "0x1C007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10050000"
+    },
+    "MT6985": {
+      "name": "MT6985",
+      "aliases": "MT6985",
+      "hw_code": "0x1296",
+      "arch": "aarch64",
+      "watchdog_base": "0x1C007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00"
+    },
+    "MT6897": {
+      "name": "MT6897",
+      "aliases": "MT6897",
+      "hw_code": "0x1203",
+      "arch": "aarch64",
+      "watchdog_base": "0x1C007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x1000D000"
+    },
+    "MT6835V": {
+      "name": "MT6835V",
+      "aliases": "MT6835V/ZA",
+      "hw_code": "0x1209",
+      "arch": "aarch64",
+      "watchdog_base": "0x1C007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x2001000"
+    },
+    "MT6886": {
+      "name": "MT6886",
+      "aliases": "MT6886",
+      "hw_code": "0x1229",
+      "arch": "aarch64",
+      "watchdog_base": "0x1C007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x2001000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x1000D000"
+    },
+    "MT6878": {
+      "name": "MT6878",
+      "aliases": "MT6878",
+      "hw_code": "0x1375",
+      "arch": "aarch64",
+      "watchdog_base": "0x1C00A000",
+      "var1": "0xA",
+      "da_payload_addr": "0x2010000",
+      "brom_payload_addr": "0x100A00"
+    },
+    "MT6989W": {
+      "name": "MT6989W",
+      "aliases": "MT6989W",
+      "hw_code": "0x1236",
+      "arch": "aarch64",
+      "watchdog_base": "0x1C00B000",
+      "da_payload_addr": "0x2001000",
+      "brom_payload_addr": "0x100A00"
+    },
+    "MT6899": {
+      "name": "MT6899",
+      "aliases": "MT6899",
+      "hw_code": "0x6899",
+      "arch": "aarch64",
+      "watchdog_base": "0x1C00B000",
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00"
+    },
+    "MT6991": {
+      "name": "MT6991",
+      "aliases": "MT6991",
+      "hw_code": "0x1357",
+      "arch": "aarch64",
+      "watchdog_base": "0x1C010000",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00"
+    },
+    "MT6993": {
+      "name": "MT6993",
+      "aliases": "MT6993",
+      "hw_code": "0x1471",
+      "arch": "aarch64",
+      "watchdog_base": "0x1C010000",
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00"
+    },
+    "MT8127": {
+      "name": "MT8127",
+      "aliases": "MT8127/MT3367",
+      "hw_code": "0x8127",
+      "arch": "arm32",
       "watchdog_base": "0x10007000",
-      "security_ver": "v5",
-      "arch": "aarch64"
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x11010000"
+    },
+    "MT8135": {
+      "name": "MT8135",
+      "aliases": "MT8135",
+      "hw_code": "0x8135",
+      "arch": "arm32",
+      "watchdog_base": "0x10000000",
+      "da_payload_addr": "0x12001000",
+      "gcpu_base": "0x11018000"
+    },
+    "MT8163": {
+      "name": "MT8163",
+      "aliases": "MT8163",
+      "hw_code": "0x8163",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "var1": "0xB1",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10210000"
+    },
+    "MT8167": {
+      "name": "MT8167",
+      "aliases": "MT8167/MT8516/MT8362",
+      "hw_code": "0x8167",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "var1": "0xCC",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x1020D000"
+    },
+    "MT8168": {
+      "name": "MT8168",
+      "aliases": "MT8168/MT6357",
+      "hw_code": "0x8168",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x10241000"
+    },
+    "MT8173": {
+      "name": "MT8173",
+      "aliases": "MT8173",
+      "hw_code": "0x8172",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "var1": "0xA",
+      "da_payload_addr": "0xC0000",
+      "brom_payload_addr": "0x120A00",
+      "gcpu_base": "0x10210000"
+    },
+    "MT8176": {
+      "name": "MT8176",
+      "aliases": "MT8176",
+      "hw_code": "0x8176",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "var1": "0xA",
+      "da_payload_addr": "0xC0000",
+      "brom_payload_addr": "0x120A00",
+      "gcpu_base": "0x10210000"
+    },
+    "MT8195": {
+      "name": "MT8195",
+      "aliases": "MT8195",
+      "hw_code": "0x0930",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00"
+    },
+    "MT8512": {
+      "name": "MT8512",
+      "aliases": "MT8512",
+      "hw_code": "0x8512",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x111000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x1020F000"
+    },
+    "MT8590": {
+      "name": "MT8590",
+      "aliases": "MT8590/MT7623",
+      "hw_code": "0x8590",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00",
+      "gcpu_base": "0x1101B000"
+    },
+    "MT8695": {
+      "name": "MT8695",
+      "aliases": "MT8695",
+      "hw_code": "0x8695",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "var1": "0xA",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00"
+    },
+    "MT8696": {
+      "name": "MT8696",
+      "aliases": "MT8696",
+      "hw_code": "0x0908",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00"
+    },
+    "MT2625 NB-IoT": {
+      "name": "MT2625 NB-IoT",
+      "aliases": "MT2625 NB-IoT",
+      "hw_code": "0x2625",
+      "arch": "aarch64",
+      "watchdog_base": "0x10007000",
+      "da_payload_addr": "0x4001000",
+      "brom_payload_addr": "0x100A00"
+    },
+    "MT3967": {
+      "name": "MT3967",
+      "aliases": "MT3967",
+      "hw_code": "0x3967",
+      "arch": "aarch64",
+      "da_payload_addr": "0x201000",
+      "brom_payload_addr": "0x100A00"
     }
   },
   "usb_identifiers": {

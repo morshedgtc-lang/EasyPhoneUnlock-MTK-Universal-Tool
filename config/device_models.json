@@ -1,47 +1,955 @@
 {
-  "_comment": "Brand -> models registry. Each model lists its MTK chip and which operations are offered. Expand freely; the GUI reads this at startup.",
+  "_comment": "Brand -> model registry. Extensible and also served/updatable from the server (/api/v1/catalog/devices).",
   "brands": {
     "Xiaomi": {
       "models": {
-        "Redmi Note 10 (mojito)": {"chip": "MT6765", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "NETWORK_UNLOCK", "BACKUP_FLASH", "BACKUP_SECURITY", "IMEI_REPAIR"]},
-        "Redmi 9 (lancelot)": {"chip": "MT6768", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "BACKUP_FLASH", "BACKUP_SECURITY"]},
-        "Redmi 10C (fog)": {"chip": "MT6765", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "NETWORK_UNLOCK", "BACKUP_FLASH"]}
+        "Redmi 9 (lancelot)": {
+          "chip": "MT6768",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Redmi 9A (dandelion)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Redmi 9C (angelica)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Redmi 10 (selene)": {
+          "chip": "MT6768",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Redmi 10C (fog)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Redmi Note 8 (ginkgo)": {
+          "chip": "MT6785",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Redmi Note 10 (mojito)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Redmi Note 11 (spes)": {
+          "chip": "MT6768",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Redmi Note 11S (fleur)": {
+          "chip": "MT6785",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Redmi Note 12 (sunstone)": {
+          "chip": "MT6833",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "POCO M3 Pro (camellia)": {
+          "chip": "MT6833",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "POCO M4 Pro (fleur)": {
+          "chip": "MT6785",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        }
       }
     },
     "Samsung": {
       "models": {
-        "Galaxy A04 (SM-A045F)": {"chip": "MT6765", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "BACKUP_FLASH", "BACKUP_SECURITY"]},
-        "Galaxy A14 (SM-A145F)": {"chip": "MT6769", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "NETWORK_UNLOCK", "BACKUP_FLASH"]}
+        "Galaxy A03 (SM-A035F)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Galaxy A03s (SM-A037F)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Galaxy A04 (SM-A045F)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Galaxy A04e (SM-A042F)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Galaxy A05 (SM-A055F)": {
+          "chip": "MT6768",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Galaxy A14 (SM-A145F)": {
+          "chip": "MT6769",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Galaxy A15 (SM-A155F)": {
+          "chip": "MT6769",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Galaxy M12 (SM-M127F)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Galaxy A22 4G (SM-A225F)": {
+          "chip": "MT6769",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        }
       }
     },
     "Oppo": {
       "models": {
-        "A16 (CPH2269)": {"chip": "MT6765", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "BACKUP_FLASH", "BACKUP_SECURITY"]},
-        "A54 (CPH2239)": {"chip": "MT6768", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "NETWORK_UNLOCK", "BACKUP_FLASH"]}
-      }
-    },
-    "Vivo": {
-      "models": {
-        "Y21 (V2111)": {"chip": "MT6765", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "BACKUP_FLASH"]},
-        "Y33s (V2109)": {"chip": "MT6768", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "NETWORK_UNLOCK", "BACKUP_SECURITY"]}
+        "A16 (CPH2269)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "A16s (CPH2271)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "A17 (CPH2477)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "A54 (CPH2239)": {
+          "chip": "MT6768",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "A55 (CPH2325)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "A5 5G (CPH2735)": {
+          "chip": "MT6833",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "A57 (CPH2387)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "A77 (CPH2385)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        }
       }
     },
     "Realme": {
       "models": {
-        "C25 (RMX3191)": {"chip": "MT6768", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "BACKUP_FLASH", "BACKUP_SECURITY"]},
-        "C11 (RMX3231)": {"chip": "MT6765", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "BACKUP_FLASH"]}
+        "C11 (RMX3231)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH"
+          ]
+        },
+        "C21 (RMX3201)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "C25 (RMX3191)": {
+          "chip": "MT6768",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "C30 (RMX3581)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "C35 (RMX3511)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "8 (RMX3085)": {
+          "chip": "MT6785",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "9i (RMX3491)": {
+          "chip": "MT6769",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Narzo 50 (RMX3286)": {
+          "chip": "MT6785",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        }
+      }
+    },
+    "Vivo": {
+      "models": {
+        "Y1s (V2030)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH"
+          ]
+        },
+        "Y12s (V2026)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Y15s (V2120)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Y21 (V2111)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Y22 (V2207)": {
+          "chip": "MT6769",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Y33s (V2109)": {
+          "chip": "MT6768",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Y35 (V2205)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        }
       }
     },
     "Tecno": {
       "models": {
-        "Spark 8C (KG5k)": {"chip": "MT6761", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "BACKUP_FLASH"]},
-        "Camon 18 (CH6n)": {"chip": "MT6785", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "NETWORK_UNLOCK", "IMEI_REPAIR"]}
+        "Spark 7 (KF6n)": {
+          "chip": "MT6761",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH"
+          ]
+        },
+        "Spark 8C (KG5k)": {
+          "chip": "MT6761",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Spark 9 (KG5n)": {
+          "chip": "MT6768",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Camon 18 (CH6n)": {
+          "chip": "MT6785",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Camon 19 (CI6n)": {
+          "chip": "MT6785",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Pova 2 (LE7n)": {
+          "chip": "MT6785",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Pova 4 (LG7n)": {
+          "chip": "MT6769",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        }
       }
     },
     "Infinix": {
       "models": {
-        "Hot 11 (X662)": {"chip": "MT6765", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "BACKUP_FLASH"]},
-        "Note 12 (X670)": {"chip": "MT6789", "operations": ["FLASH_FIRMWARE", "FRP_RESET", "NETWORK_UNLOCK", "IMEI_REPAIR", "BACKUP_SECURITY"]}
+        "Smart 6 (X6511)": {
+          "chip": "MT6761",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH"
+          ]
+        },
+        "Hot 10 (X682)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Hot 11 (X662)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Hot 12 (X6816)": {
+          "chip": "MT6769",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Note 11 (X663)": {
+          "chip": "MT6781",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Note 12 (X670)": {
+          "chip": "MT6789",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Zero X (X6811)": {
+          "chip": "MT6893",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        }
+      }
+    },
+    "itel": {
+      "models": {
+        "A58 (P661W)": {
+          "chip": "MT6761",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH"
+          ]
+        },
+        "Vision 3 (P661N)": {
+          "chip": "MT6761",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "P38 (W6004)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "S23 (P651L)": {
+          "chip": "MT6769",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        }
+      }
+    },
+    "Nokia": {
+      "models": {
+        "C21 (TA-1352)": {
+          "chip": "MT6761",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "C31 (TA-1497)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "G11 (TA-1401)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "G21 (TA-1418)": {
+          "chip": "MT6769",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "5.4 (TA-1337)": {
+          "chip": "MT6769",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        }
+      }
+    },
+    "Motorola": {
+      "models": {
+        "Moto E7 (malta)": {
+          "chip": "MT6762",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Moto E13 (bheki)": {
+          "chip": "MT6761",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Moto G13 (penangf)": {
+          "chip": "MT6768",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Moto G23 (penang)": {
+          "chip": "MT6768",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Moto G62 (rhodep)": {
+          "chip": "MT6833",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        }
+      }
+    },
+    "Honor": {
+      "models": {
+        "X5 (VNA-LX3)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "X6 (VNE-LX1)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "X7 (CMA-LX2)": {
+          "chip": "MT6769",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Play 30 (RBA-AN00)": {
+          "chip": "MT6833",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        }
+      }
+    },
+    "Huawei": {
+      "models": {
+        "Y5p (DRA-LX9)": {
+          "chip": "MT6761",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH"
+          ]
+        },
+        "Y6p (MED-LX9N)": {
+          "chip": "MT6762",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "nova Y70 (MGA-LX9)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        }
+      }
+    },
+    "Lenovo": {
+      "models": {
+        "Tab M8 (TB-8505X)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Tab M10 (TB-X306X)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "K14 (XT2167)": {
+          "chip": "MT6761",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        }
+      }
+    },
+    "OnePlus": {
+      "models": {
+        "Nord N20 SE (CPH2469)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Nord CE 2 (IV2201)": {
+          "chip": "MT6877",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        }
+      }
+    },
+    "Sony": {
+      "models": {
+        "Xperia 10 IV (XQ-CC54)": {
+          "chip": "MT6833",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        }
+      }
+    },
+    "ZTE": {
+      "models": {
+        "Blade A51 (V2001)": {
+          "chip": "MT6761",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        },
+        "Blade A72 (V2001)": {
+          "chip": "MT6765",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "NETWORK_UNLOCK",
+            "IMEI_REPAIR",
+            "BACKUP_FLASH",
+            "BACKUP_SECURITY"
+          ]
+        }
       }
     }
   }

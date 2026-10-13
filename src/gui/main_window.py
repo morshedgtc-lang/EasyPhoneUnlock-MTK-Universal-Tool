@@ -223,10 +223,17 @@ class MainWindow(QWidget):
     def _enter_dashboard(self):
         self.welcome.setText(f"Welcome, {self.lic.user_data.get('username', '')}")
         self._refresh_credits()
+        # Pull the latest chip/device catalog from the server (falls back to bundled).
+        sync = self.lic.sync_catalog()
+        self.cb_brand.blockSignals(True)
+        self.cb_brand.clear(); self.cb_brand.addItems(devices.brands())
+        self.cb_brand.blockSignals(False)
         if self.cb_brand.count():
             self._brand_changed(self.cb_brand.currentText())
         self.stack.setCurrentIndex(1)
         self._log("info", f"Logged in. PC ID {self.lic.hwid} registered to the server.")
+        self._log("info", f"Catalog: {len(devices.brands())} brands, "
+                          f"{sum(len(devices.models(b)) for b in devices.brands())} models. {sync.get('catalog')}")
 
     def _refresh_credits(self):
         self.credits_lbl.setText(f"Credits: {self.lic.credits}")
