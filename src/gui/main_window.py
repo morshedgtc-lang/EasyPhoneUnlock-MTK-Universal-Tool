@@ -1,20 +1,22 @@
-"""Main application window: glass UI, login, brand/model ops, live display."""
+"""Main application window: glass UI, login, brand/model ops, firmware select,
+device info, live display."""
 from __future__ import annotations
 
-from PyQt6.QtCore import Qt, QPoint
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import (
-    QCheckBox, QComboBox, QDialog, QDialogButtonBox, QFrame, QGraphicsDropShadowEffect,
-    QGridLayout, QHBoxLayout, QHeaderView, QLabel, QLineEdit, QPlainTextEdit,
-    QProgressBar, QPushButton, QSlider, QStackedWidget, QTableWidget, QTableWidgetItem,
-    QVBoxLayout, QWidget,
+    QCheckBox, QComboBox, QDialog, QDialogButtonBox, QFileDialog, QFrame,
+    QGraphicsDropShadowEffect, QGridLayout, QHBoxLayout, QHeaderView, QLabel,
+    QLineEdit, QMessageBox, QPlainTextEdit, QProgressBar, QPushButton, QSlider,
+    QStackedWidget, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
 from src.auth.license_client import LicenseClient
 from src.core import devices
 from src.core.safety import is_protected
+from src.core.scatter.scatter_parser import ScatterParser
 from src.gui.theme import QSS, apply_acrylic
-from src.gui.worker import WORKFLOWS, OperationWorker
+from src.gui.worker import WORKFLOWS, DeviceInfoWorker, OperationWorker
 
 SENSITIVE = {"FRP_RESET", "NETWORK_UNLOCK", "IMEI_REPAIR", "BOOTLOADER_UNLOCK", "BACKUP_SECURITY"}
 SERVER_DEFAULT = "http://127.0.0.1:8000"
@@ -59,14 +61,19 @@ class ConsentDialog(QDialog):
 
 
 class MainWindow(QWidget):
+    COLS = ["", "Partition", "File", "Size", "State"]
+
     def __init__(self, server_url: str = SERVER_DEFAULT):
         super().__init__()
         self.setObjectName("Root")
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        self.resize(1040, 660)
+        self.resize(1080, 700)
         self._drag = None
         self.worker: OperationWorker | None = None
+        self.info_worker: DeviceInfoWorker | None = None
+        self.scatter_partitions = []
+        self.device_info: dict = {}
 
         self.lic = LicenseClient(server_url=server_url)
 
@@ -118,22 +125,18 @@ class MainWindow(QWidget):
         h1 = QLabel("Sign in"); h1.setObjectName("H1")
         sub = QLabel("Your PC ID and IP are registered to your account on login."); sub.setObjectName("Sub")
         v.addWidget(h1); v.addWidget(sub); v.addSpacing(14)
-
         self.in_user = QLineEdit(); self.in_user.setPlaceholderText("Username")
         self.in_pass = QLineEdit(); self.in_pass.setPlaceholderText("Password")
         self.in_pass.setEchoMode(QLineEdit.EchoMode.Password)
         self.in_pass.returnPressed.connect(self._do_login)
         v.addWidget(self.in_user); v.addWidget(self.in_pass)
-
         row = QHBoxLayout()
         btn_login = QPushButton("Sign In"); btn_login.setObjectName("Primary")
         btn_login.clicked.connect(self._do_login)
         btn_reg = QPushButton("Register"); btn_reg.clicked.connect(self._do_register)
         row.addWidget(btn_login, 2); row.addWidget(btn_reg, 1)
         v.addSpacing(6); v.addLayout(row)
-
-        self.login_msg = QLabel(""); self.login_msg.setObjectName("Sub")
-        v.addWidget(self.login_msg)
+        self.login_msg = QLabel(""); self.login_msg.setObjectName("Sub"); v.addWidget(self.login_msg)
         self.hwid_lbl = QLabel(f"HWID: {self.lic.hwid}"); self.hwid_lbl.setObjectName("Sub")
         v.addSpacing(8); v.addWidget(self.hwid_lbl)
         v.addStretch(2)
@@ -155,7 +158,6 @@ class MainWindow(QWidget):
         page = QWidget(); grid = QGridLayout(page)
         grid.setContentsMargins(20, 10, 20, 20); grid.setHorizontalSpacing(18)
 
-        # Top bar
         top = QHBoxLayout()
         self.welcome = QLabel("Welcome"); self.welcome.setObjectName("H1")
         self.credits_lbl = QLabel("Credits: -"); self.credits_lbl.setProperty("class", "badge")
@@ -164,7 +166,7 @@ class MainWindow(QWidget):
         top.addSpacing(12); top.addWidget(logout)
         grid.addLayout(top, 0, 0, 1, 2)
 
-        # Left: device + operations
+        # Left panel
         left = QVBoxLayout()
         left.addWidget(QLabel("Brand"))
         self.cb_brand = QComboBox(); self.cb_brand.addItems(devices.brands())
@@ -173,8 +175,19 @@ class MainWindow(QWidget):
         left.addWidget(QLabel("Model"))
         self.cb_model = QComboBox(); self.cb_model.currentTextChanged.connect(self._model_changed)
         left.addWidget(self.cb_model)
-        self.chip_lbl = QLabel("Chip: -"); self.chip_lbl.setObjectName("Sub")
-        left.addWidget(self.chip_lbl)
+
+        btn_read = QPushButton("\U0001F50C  Read Device Info"); btn_read.setObjectName("Primary")
+        btn_read.clicked.connect(self._read_info)
+        left.addSpacing(4); left.addWidget(btn_read)
+        self.info_lbl = QLabel("Device: not connected"); self.info_lbl.setObjectName("Sub")
+        self.info_lbl.setWordWrap(True); self.info_lbl.setTextFormat(Qt.TextFormat.RichText)
+        left.addWidget(self.info_lbl)
+
+        btn_fw = QPushButton("\U0001F4C1  Load Scatter / Flash File")
+        btn_fw.clicked.connect(self._load_firmware)
+        left.addSpacing(4); left.addWidget(btn_fw)
+        self.fw_lbl = QLabel("No firmware loaded"); self.fw_lbl.setObjectName("Sub"); self.fw_lbl.setWordWrap(True)
+        left.addWidget(self.fw_lbl)
 
         left.addWidget(QLabel("I/O Speed"))
         self.slider = QSlider(Qt.Orientation.Horizontal); self.slider.setRange(1, 10); self.slider.setValue(6)
@@ -183,20 +196,23 @@ class MainWindow(QWidget):
         left.addSpacing(6)
         self.ops_box = QVBoxLayout(); left.addLayout(self.ops_box)
         left.addStretch(1)
-        left_w = QWidget(); left_w.setLayout(left); left_w.setFixedWidth(300)
+        left_w = QWidget(); left_w.setLayout(left); left_w.setFixedWidth(310)
         grid.addWidget(left_w, 1, 0)
 
-        # Right: live display
+        # Right panel: partition table (also the live display) + console + progress
         right = QVBoxLayout()
-        right.addWidget(QLabel("Live Operation"))
-        self.table = QTableWidget(0, 4)
-        self.table.setHorizontalHeaderLabels(["Partition", "Action", "File", "State"])
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        right.addWidget(QLabel("Partitions / Live Operation"))
+        self.table = QTableWidget(0, len(self.COLS))
+        self.table.setHorizontalHeaderLabels(self.COLS)
+        hdr = self.table.horizontalHeader()
+        hdr.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        hdr.setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
+        self.table.setColumnWidth(0, 34)
         self.table.verticalHeader().setVisible(False)
         self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         right.addWidget(self.table, 2)
         self.console = QPlainTextEdit(); self.console.setReadOnly(True)
-        right.addWidget(self.console, 3)
+        right.addWidget(self.console, 2)
         self.progress = QProgressBar(); self.progress.setValue(0)
         right.addWidget(self.progress)
         right_w = QWidget(); right_w.setLayout(right)
@@ -205,8 +221,7 @@ class MainWindow(QWidget):
         return page
 
     def _enter_dashboard(self):
-        u = self.lic.user_data
-        self.welcome.setText(f"Welcome, {u.get('username', '')}")
+        self.welcome.setText(f"Welcome, {self.lic.user_data.get('username', '')}")
         self._refresh_credits()
         if self.cb_brand.count():
             self._brand_changed(self.cb_brand.currentText())
@@ -220,16 +235,13 @@ class MainWindow(QWidget):
         self.stack.setCurrentIndex(0); self.login_msg.setText("Logged out.")
 
     def _brand_changed(self, brand):
-        self.cb_model.clear()
-        self.cb_model.addItems(devices.models(brand))
+        self.cb_model.clear(); self.cb_model.addItems(devices.models(brand))
 
     def _model_changed(self, model):
         brand = self.cb_brand.currentText()
         if not model:
             return
         info = devices.model_info(brand, model)
-        self.chip_lbl.setText(f"Chip: {info.get('chip', '-')}")
-        # Rebuild operation buttons for this model.
         while self.ops_box.count():
             item = self.ops_box.takeAt(0)
             if item.widget():
@@ -241,12 +253,89 @@ class MainWindow(QWidget):
             btn.clicked.connect(lambda _, o=op: self._start_operation(o))
             self.ops_box.addWidget(btn)
 
+    # --------------------------- device info -------------------------- #
+    def _read_info(self):
+        if self.info_worker and self.info_worker.isRunning():
+            return
+        self.info_lbl.setText("Device: reading...")
+        self._log("info", "Reading device info over BROM...")
+        self.info_worker = DeviceInfoWorker()
+        self.info_worker.log.connect(self._log)
+        self.info_worker.info.connect(self._on_info)
+        self.info_worker.done.connect(self._on_info_done)
+        self.info_worker.start()
+
+    def _on_info(self, data: dict):
+        self.device_info = data
+        self.info_lbl.setText(
+            f"<b>{data['chip']}</b> on {data['port']}<br>"
+            f"HW {data['hw_code']} • SWver {data['sw_ver']} • "
+            f"{data['arch']} • sec {data['security']}"
+        )
+        # Safety: compare detected chip with the selected model's chip.
+        model_chip = devices.model_info(self.cb_brand.currentText(), self.cb_model.currentText()).get("chip")
+        if model_chip and data["chip"] != model_chip and not data["chip"].startswith("UNKNOWN"):
+            self._log("warn", f"Detected {data['chip']} but model expects {model_chip}. Check your selection.")
+
+    def _on_info_done(self, ok, message):
+        if not ok:
+            self.info_lbl.setText(f"Device: {message}")
+            self._log("err", message)
+
+    # --------------------------- firmware ----------------------------- #
+    def _load_firmware(self):
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Select scatter / flash file", "",
+            "Scatter files (*scatter*.txt *.xml *.yaml);;All files (*.*)")
+        if not path:
+            return
+        try:
+            self.scatter_partitions = ScatterParser.parse_file(path)
+        except Exception as e:
+            QMessageBox.critical(self, "Scatter error", f"Could not parse file:\n{e}")
+            return
+        self.fw_lbl.setText(f"Loaded {len(self.scatter_partitions)} partitions from:\n{path.split('/')[-1]}")
+        self._log("ok", f"Firmware loaded: {len(self.scatter_partitions)} partitions.")
+        self._populate_partitions()
+
+    def _populate_partitions(self):
+        self.table.setRowCount(0)
+        for p in self.scatter_partitions:
+            r = self.table.rowCount(); self.table.insertRow(r)
+            chk = QTableWidgetItem()
+            chk.setFlags(Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
+            chk.setCheckState(Qt.CheckState.Checked if p.is_download else Qt.CheckState.Unchecked)
+            self.table.setItem(r, 0, chk)
+            self.table.setItem(r, 1, QTableWidgetItem(p.name))
+            self.table.setItem(r, 2, QTableWidgetItem(p.file_name))
+            self.table.setItem(r, 3, QTableWidgetItem(f"0x{p.partition_size:X}"))
+            self.table.setItem(r, 4, QTableWidgetItem("-"))
+
+    def _checked_flash_steps(self):
+        """Return [(partition, 'WRITE', file)] for checked, downloadable rows."""
+        steps = []
+        for r in range(self.table.rowCount()):
+            if self.table.item(r, 0).checkState() == Qt.CheckState.Checked:
+                name = self.table.item(r, 1).text()
+                fname = self.table.item(r, 2).text()
+                if fname and fname.upper() != "NONE":
+                    steps.append((name, "WRITE", fname))
+        return steps
+
     # --------------------------- operations --------------------------- #
     def _start_operation(self, operation):
         if self.worker and self.worker.isRunning():
             return
         brand = self.cb_brand.currentText(); model = self.cb_model.currentText()
         imei = serial = ""; consent = False
+        steps = None
+
+        if operation == "FLASH_FIRMWARE":
+            steps = self._checked_flash_steps()
+            if not steps:
+                QMessageBox.information(self, "No firmware",
+                                        "Load a scatter file and tick the partitions to flash first.")
+                return
 
         if operation in SENSITIVE:
             dlg = ConsentDialog(self, devices.label(operation))
@@ -255,10 +344,10 @@ class MainWindow(QWidget):
                 return
             imei, serial, consent = dlg.values()
 
-        # Protected-partition safety confirmation, collected on the GUI thread.
-        protected = [p for (p, a) in WORKFLOWS.get(operation, []) if is_protected(p)]
+        # Protected-partition safety confirmation (from the actual steps).
+        step_parts = [s[0] for s in (steps or [])] or [p for (p, a) in WORKFLOWS.get(operation, [])]
+        protected = [p for p in step_parts if is_protected(p)]
         if protected:
-            from PyQt6.QtWidgets import QMessageBox
             msg = ("These PROTECTED partitions will be modified:\n  - "
                    + "\n  - ".join(sorted(set(protected)))
                    + "\n\nA wrong file here can brick the device. A backup is taken first. Continue?")
@@ -266,12 +355,14 @@ class MainWindow(QWidget):
                 self._log("warn", "Operation aborted at safety confirmation.")
                 return
 
-        self.table.setRowCount(0); self.progress.setValue(0)
+        if operation != "FLASH_FIRMWARE":
+            self.table.setRowCount(0)
+        self.progress.setValue(0)
         self._log("info", f"=== {devices.label(operation)} :: {brand} {model} ===")
 
         self.worker = OperationWorker(
             self.lic, operation, devices.payloads_for(operation),
-            brand, model, imei, serial, consent, confirm_cb=lambda m: True,
+            brand, model, imei, serial, consent, confirm_cb=lambda m: True, steps=steps,
         )
         self.worker.log.connect(self._log)
         self.worker.progress.connect(self.progress.setValue)
@@ -280,14 +371,19 @@ class MainWindow(QWidget):
         self.worker.start()
 
     def _on_action(self, partition, action, filename, state):
-        # Update the row for this partition or add a new one.
+        # Update the matching partition row's State; add a row if not present.
         for r in range(self.table.rowCount()):
-            if self.table.item(r, 0).text() == partition and self.table.item(r, 3).text() != "DONE":
-                self.table.item(r, 3).setText(state)
+            if self.table.item(r, 1) and self.table.item(r, 1).text() == partition:
+                self.table.item(r, 4).setText(state)
+                if self.table.item(r, 2) and not self.table.item(r, 2).text():
+                    self.table.item(r, 2).setText(filename)
                 return
         r = self.table.rowCount(); self.table.insertRow(r)
-        for c, val in enumerate([partition, action, filename, state]):
-            self.table.setItem(r, c, QTableWidgetItem(val))
+        self.table.setItem(r, 0, QTableWidgetItem(""))
+        self.table.setItem(r, 1, QTableWidgetItem(partition))
+        self.table.setItem(r, 2, QTableWidgetItem(filename))
+        self.table.setItem(r, 3, QTableWidgetItem("-"))
+        self.table.setItem(r, 4, QTableWidgetItem(state))
 
     def _on_finished(self, ok, message, remaining):
         self._log("ok" if ok else "err", message)
