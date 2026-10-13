@@ -56,9 +56,9 @@ class BROMProtocol:
         logger.error("BROM handshake timed out.")
         return False
 
-    def get_hardware_info(self) -> Tuple[int, int, int, int]:
+    def get_hardware_info(self) -> Tuple[int, int, int]:
         """
-        Retrieves CPU Hardware Code, Sub-code, HW Version, and SW Version.
+        Retrieves CPU Hardware Code, HW Version, and SW Version.
         """
         # Read HW Code
         self.transport.write(BROMCommands.CMD_GET_HW_CODE)

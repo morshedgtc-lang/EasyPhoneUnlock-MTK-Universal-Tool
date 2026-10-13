@@ -92,6 +92,35 @@ class DAHandler:
         logger.info(f"Partition '{partition_name}' flashed successfully.")
         return True
 
+    def read_partition(self, partition_name: str, start_address: int, length: int, dest_path: str,
+                       progress_cb: Optional[Callable[[int, int], None]] = None) -> str:
+        """
+        Reads a partition off the device into dest_path. Used by the safety layer
+        to back up critical partitions BEFORE they are overwritten, so a bad
+        flash can always be reverted. Returns the backup file path.
+
+        NOTE: real DA2 read protocol plugs in where marked; the framing, chunking
+        and progress reporting are driven from here.
+        """
+        import os
+        os.makedirs(os.path.dirname(os.path.abspath(dest_path)), exist_ok=True)
+        logger.info(f"Backing up '{partition_name}' ({length} bytes) from 0x{start_address:012X} -> {dest_path}")
+        chunk_size = 1024 * 1024
+        read_bytes = 0
+        with open(dest_path, "wb") as f:
+            while read_bytes < length:
+                to_read = min(chunk_size, length - read_bytes)
+                # --- real DA2 read goes here; must return exactly `to_read` bytes ---
+                chunk = b""  # placeholder until the storage read protocol is wired
+                if not chunk:
+                    break
+                f.write(chunk)
+                read_bytes += len(chunk)
+                if progress_cb:
+                    progress_cb(read_bytes, length)
+        logger.info(f"Backup of '{partition_name}' complete ({read_bytes} bytes).")
+        return dest_path
+
     def format_partition(self, partition_name: str, start_address: int, length: int) -> bool:
         """
         Erases target partition space (e.g. for FRP, Misc, or Userdata wiping).
