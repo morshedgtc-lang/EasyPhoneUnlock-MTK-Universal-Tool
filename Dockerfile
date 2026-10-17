@@ -14,6 +14,8 @@ COPY backend/requirements.txt /app/backend/requirements.txt
 RUN pip install --no-cache-dir -r backend/requirements.txt
 
 COPY backend /app/backend
+# The chip/device catalog the server serves at /api/v1/catalog/*.
+COPY config /app/config
 
 # Vault lives on a mounted volume in compose; create the dir for local runs.
 RUN mkdir -p /app/backend/vault
