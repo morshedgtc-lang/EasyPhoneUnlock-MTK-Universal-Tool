@@ -17,7 +17,7 @@ from src.core.safety import is_protected
 from src.core.scatter.scatter_parser import ScatterParser
 from src.core.paths import asset_path
 from src.gui.theme import QSS, app_icon, apply_acrylic, load_svg_pixmap
-from src.gui.worker import DeviceInfoWorker, FirmwareLoadWorker, OperationWorker
+from src.gui.worker import AuthWorker, DeviceInfoWorker, FirmwareLoadWorker, OperationWorker
 
 SENSITIVE = {"FRP_RESET", "NETWORK_UNLOCK", "IMEI_REPAIR", "BOOTLOADER_UNLOCK", "BACKUP_SECURITY"}
 SERVER_DEFAULT = "https://epu-api-production.up.railway.app"
@@ -75,6 +75,7 @@ class MainWindow(QWidget):
         self.worker: OperationWorker | None = None
         self.info_worker: DeviceInfoWorker | None = None
         self.fw_worker: FirmwareLoadWorker | None = None
+        self.auth_worker: AuthWorker | None = None
         self.scatter_partitions = []
         self.firmware_dir = ""      # where partition images live (for flash)
         self.device_info: dict = {}
@@ -154,6 +155,7 @@ class MainWindow(QWidget):
         btn_login = QPushButton("Sign In"); btn_login.setObjectName("Primary")
         btn_login.clicked.connect(self._do_login)
         btn_reg = QPushButton("Register"); btn_reg.clicked.connect(self._do_register)
+        self.btn_sign_in, self.btn_register = btn_login, btn_reg
         brow.addWidget(btn_login, 2); brow.addWidget(btn_reg, 1)
         v.addSpacing(4); v.addLayout(brow)
 
@@ -169,16 +171,39 @@ class MainWindow(QWidget):
         outer.addLayout(row); outer.addStretch(1)
         return page
 
+    def _set_auth_busy(self, busy: bool):
+        self.btn_sign_in.setEnabled(not busy)
+        self.btn_register.setEnabled(not busy)
+
+    def _start_auth(self, action: str):
+        if self.auth_worker and self.auth_worker.isRunning():
+            return
+        user = self.in_user.text().strip()
+        pwd = self.in_pass.text()
+        if not user or not pwd:
+            self.login_msg.setText("Enter a username and password.")
+            return
+        self._set_auth_busy(True)
+        self.login_msg.setText("Connecting to server...")
+        self.auth_worker = AuthWorker(self.lic, action, user, pwd)
+        self.auth_worker.done.connect(self._on_auth_done)
+        self.auth_worker.start()
+
     def _do_login(self):
-        r = self.lic.login(self.in_user.text().strip(), self.in_pass.text())
-        if r.get("status") == "success":
-            self._enter_dashboard()
-        else:
-            self.login_msg.setText(r.get("detail") or r.get("message") or "Login failed.")
+        self._start_auth("login")
 
     def _do_register(self):
-        r = self.lic.register(self.in_user.text().strip(), self.in_pass.text())
-        self.login_msg.setText(r.get("message") or r.get("detail") or "Registered.")
+        self._start_auth("register")
+
+    def _on_auth_done(self, action: str, r: dict):
+        self._set_auth_busy(False)
+        if action == "login":
+            if r.get("status") == "success":
+                self._enter_dashboard()
+            else:
+                self.login_msg.setText(r.get("detail") or r.get("message") or "Login failed.")
+        else:
+            self.login_msg.setText(r.get("message") or r.get("detail") or "Registered.")
 
     # --------------------------- dashboard ---------------------------- #
     def _dashboard_page(self) -> QWidget:

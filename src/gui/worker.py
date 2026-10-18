@@ -21,6 +21,25 @@ from src.core.safety import SafetyConfig, SafetyError, guard_frp_targets
 from src.core.service import OperationRunner
 
 
+class AuthWorker(QThread):
+    """Login or register off the UI thread so the window never freezes."""
+    done = pyqtSignal(str, dict)   # (action, response)
+
+    def __init__(self, lic, action: str, username: str, password: str):
+        super().__init__()
+        self.lic = lic
+        self.action = action
+        self.username = username
+        self.password = password
+
+    def run(self):
+        if self.action == "login":
+            res = self.lic.login(self.username, self.password)
+        else:
+            res = self.lic.register(self.username, self.password)
+        self.done.emit(self.action, res)
+
+
 class FirmwareLoadWorker(QThread):
     """Decrypt/unpack a firmware file (OFP/scatter) off the UI thread."""
     log = pyqtSignal(str, str)
