@@ -1,0 +1,17 @@
+﻿.venv/
+venv/
+dist/
+build/
+backups/
+tests/
+installer/
+docs/
+src/gui/
+**/__pycache__/
+*.pyc
+.git/
+*.db
+.env
+user_session.json
+backend/vault/
+*.enc
