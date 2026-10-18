@@ -1,132 +1,209 @@
-import time
-import struct
+"""
+Low-level MediaTek BootROM (BROM) protocol.
+
+Implements the documented MTK BROM wire protocol: the complement-echo handshake,
+hardware identification, 16/32-bit register read/write with echo + status
+framing, and Download Agent upload (send_da) with a 16-bit checksum + jump_da.
+
+This is our own implementation of the public protocol (reference: the
+GPL-licensed mtkclient and public BROM documentation). Byte-level details vary
+across BROM revisions; the framing here follows the common legacy path and is
+validated by a device-simulator in tests. Final verification requires hardware.
+"""
 import logging
-from typing import Optional, Tuple
+import struct
+import time
+from typing import Tuple
 
 logger = logging.getLogger("MTK_BROM")
 
+
+class BROMError(RuntimeError):
+    pass
+
+
 class BROMCommands:
-    SYNC_CHAR       = b"\xa0"
-    SYNC_RESPONSE   = b"\x5f"
-    SYNC_CONFIRM    = b"\x0a\x50\x05"
-    
-    CMD_GET_HW_CODE = b"\xfd"
-    CMD_GET_HW_VER  = b"\xfc"
-    CMD_GET_SW_VER  = b"\xfb"
-    CMD_READ16      = b"\xa2"
-    CMD_READ32      = b"\xd1"
-    CMD_WRITE16     = b"\xa1"
-    CMD_WRITE32     = b"\xd4"
-    CMD_SEND_DA     = b"\xd7"
-    CMD_JUMP_DA     = b"\xd5"
+    # Handshake bytes (device replies with the bitwise complement of each).
+    START_CMD = bytes([0xA0, 0x0A, 0x50, 0x05])
+
+    GET_HW_CODE = 0xFD
+    GET_HW_SW_VER = 0xFC
+    READ16 = 0xA2
+    WRITE16 = 0xA1
+    READ32 = 0xD1
+    WRITE32 = 0xD4
+    SEND_DA = 0xD7
+    JUMP_DA = 0xD5
+
 
 class BROMProtocol:
-    """
-    Low-level BootROM (BROM) Protocol Engine for MediaTek SoCs.
-    Handles device synchronization, hardware identification, register read/writes,
-    and stage-1 Download Agent handoff.
-    """
-
     def __init__(self, transport):
-        """
-        :param transport: Object implementing write(data) and read(length)
-        """
         self.transport = transport
         self.hw_code = None
         self.hw_sub_code = None
         self.hw_ver = None
         self.sw_ver = None
 
+    # ------------------------------------------------------------------ #
+    # low-level framing helpers
+    # ------------------------------------------------------------------ #
+    def _echo(self, data: bytes) -> None:
+        """Write bytes and verify the device echoes them back unchanged."""
+        self.transport.write(data)
+        echo = self.transport.read(len(data))
+        if echo != data:
+            raise BROMError(f"Echo mismatch: sent {data.hex()}, got {echo.hex()}")
+
+    def _cmd(self, command: int) -> None:
+        """Send a command byte; the device echoes it back."""
+        self._echo(bytes([command]))
+
+    def _status(self) -> int:
+        """Read a 2-byte status word; 0 means OK. Returns the raw value."""
+        raw = self.transport.read(2)
+        if len(raw) < 2:
+            raise BROMError(f"Short status read: {raw.hex()}")
+        status = struct.unpack(">H", raw)[0]
+        return status
+
+    def _expect_ok(self) -> None:
+        st = self._status()
+        if st != 0:
+            raise BROMError(f"BROM returned error status 0x{st:04X}")
+
+    # ------------------------------------------------------------------ #
+    # handshake + identity
+    # ------------------------------------------------------------------ #
     def handshake(self, timeout_sec: float = 10.0) -> bool:
         """
-        Performs the initial MediaTek BROM handshake sequence.
+        MTK start handshake: for each byte B in A0 0A 50 05, the device must
+        reply with ~B (0x5F 0xF5 0xAF 0xFA). Retries until the device appears.
         """
         logger.info("Waiting for MediaTek BROM handshake...")
-        start_time = time.time()
-        
-        while (time.time() - start_time) < timeout_sec:
-            self.transport.write(BROMCommands.SYNC_CHAR)
-            resp = self.transport.read(1)
-            if resp == BROMCommands.SYNC_RESPONSE:
-                self.transport.write(BROMCommands.SYNC_CONFIRM)
-                logger.info("BROM handshake synchronized successfully.")
+        start = time.time()
+        while (time.time() - start) < timeout_sec:
+            if self._try_start():
+                logger.info("BROM handshake synchronized.")
                 return True
-            time.sleep(0.01)
-
+            time.sleep(0.02)
         logger.error("BROM handshake timed out.")
         return False
 
+    def _try_start(self) -> bool:
+        for b in BROMCommands.START_CMD:
+            self.transport.write(bytes([b]))
+            resp = self.transport.read(1)
+            if len(resp) != 1 or resp[0] != ((~b) & 0xFF):
+                return False
+        return True
+
     def get_hardware_info(self) -> Tuple[int, int, int]:
-        """
-        Retrieves CPU Hardware Code, HW Version, and SW Version.
-        """
-        # Read HW Code
-        self.transport.write(BROMCommands.CMD_GET_HW_CODE)
-        self._check_echo(BROMCommands.CMD_GET_HW_CODE)
-        hw_code_bytes = self.transport.read(2)
-        self.hw_code = struct.unpack(">H", hw_code_bytes)[0]
-        self._check_status()
+        """Read HW code, HW version and SW version. Also stores hw_sub_code."""
+        self._cmd(BROMCommands.GET_HW_CODE)
+        self.hw_code = struct.unpack(">H", self.transport.read(2))[0]
+        self._expect_ok()
 
-        # Read HW Sub-code
-        self.transport.write(BROMCommands.CMD_GET_HW_VER)
-        self._check_echo(BROMCommands.CMD_GET_HW_VER)
-        hw_ver_bytes = self.transport.read(2)
-        self.hw_ver = struct.unpack(">H", hw_ver_bytes)[0]
-        self._check_status()
+        self._cmd(BROMCommands.GET_HW_SW_VER)
+        self.hw_sub_code = struct.unpack(">H", self.transport.read(2))[0]
+        self.hw_ver = struct.unpack(">H", self.transport.read(2))[0]
+        self.sw_ver = struct.unpack(">H", self.transport.read(2))[0]
+        self._expect_ok()
 
-        # Read SW Version
-        self.transport.write(BROMCommands.CMD_GET_SW_VER)
-        self._check_echo(BROMCommands.CMD_GET_SW_VER)
-        sw_ver_bytes = self.transport.read(2)
-        self.sw_ver = struct.unpack(">H", sw_ver_bytes)[0]
-        self._check_status()
-
-        logger.info(f"Detected Chip: HW Code = 0x{self.hw_code:04X}, HW Ver = 0x{self.hw_ver:04X}, SW Ver = 0x{self.sw_ver:04X}")
+        logger.info("Chip: HW 0x%04X sub 0x%04X HWver 0x%04X SWver 0x%04X",
+                    self.hw_code, self.hw_sub_code, self.hw_ver, self.sw_ver)
         return self.hw_code, self.hw_ver, self.sw_ver
 
-    def read32(self, addr: int) -> int:
-        """Reads a 32-bit register value from target memory."""
-        self.transport.write(BROMCommands.CMD_READ32)
-        self._check_echo(BROMCommands.CMD_READ32)
-        self.transport.write(struct.pack(">I", addr))
-        self._check_echo(struct.pack(">I", addr))
-        self.transport.write(struct.pack(">I", 1)) # read count 1 word
-        self._check_echo(struct.pack(">I", 1))
-        self._check_status()
-        val_bytes = self.transport.read(4)
-        self._check_status()
-        return struct.unpack(">I", val_bytes)[0]
+    # ------------------------------------------------------------------ #
+    # register access
+    # ------------------------------------------------------------------ #
+    def read32(self, addr: int, count: int = 1) -> list[int]:
+        self._cmd(BROMCommands.READ32)
+        self._echo(struct.pack(">I", addr))
+        self._echo(struct.pack(">I", count))
+        self._expect_ok()
+        values = [struct.unpack(">I", self.transport.read(4))[0] for _ in range(count)]
+        self._expect_ok()
+        return values
 
-    def write32(self, addr: int, val: int) -> bool:
-        """Writes a 32-bit register value to target memory."""
-        self.transport.write(BROMCommands.CMD_WRITE32)
-        self._check_echo(BROMCommands.CMD_WRITE32)
-        self.transport.write(struct.pack(">I", addr))
-        self._check_echo(struct.pack(">I", addr))
-        self.transport.write(struct.pack(">I", 1))
-        self._check_echo(struct.pack(">I", 1))
-        self._check_status()
-        self.transport.write(struct.pack(">I", val))
-        self._check_echo(struct.pack(">I", val))
-        self._check_status()
+    def write32(self, addr: int, values) -> bool:
+        if isinstance(values, int):
+            values = [values]
+        self._cmd(BROMCommands.WRITE32)
+        self._echo(struct.pack(">I", addr))
+        self._echo(struct.pack(">I", len(values)))
+        self._expect_ok()
+        for v in values:
+            self._echo(struct.pack(">I", v & 0xFFFFFFFF))
+        self._expect_ok()
+        return True
+
+    def read16(self, addr: int, count: int = 1) -> list[int]:
+        self._cmd(BROMCommands.READ16)
+        self._echo(struct.pack(">I", addr))
+        self._echo(struct.pack(">I", count))
+        self._expect_ok()
+        values = [struct.unpack(">H", self.transport.read(2))[0] for _ in range(count)]
+        self._expect_ok()
+        return values
+
+    def write16(self, addr: int, values) -> bool:
+        if isinstance(values, int):
+            values = [values]
+        self._cmd(BROMCommands.WRITE16)
+        self._echo(struct.pack(">I", addr))
+        self._echo(struct.pack(">I", len(values)))
+        self._expect_ok()
+        for v in values:
+            self._echo(struct.pack(">H", v & 0xFFFF))
+        self._expect_ok()
         return True
 
     def disable_watchdog(self, watchdog_base: int = 0x10007000) -> bool:
-        """
-        Disables hardware watchdog timer to prevent phone rebooting during flash operations.
-        """
-        wdt_mode_reg = watchdog_base + 0x0000
-        # MediaTek WDT Key unlock & disable
+        """Write the WDT disable key so the device doesn't reboot mid-operation."""
         WDT_KEY = 0x22000000
-        logger.info(f"Disabling Watchdog Timer at 0x{wdt_mode_reg:08X}...")
-        return self.write32(wdt_mode_reg, WDT_KEY)
+        logger.info("Disabling watchdog at 0x%08X", watchdog_base)
+        return self.write32(watchdog_base, WDT_KEY)
 
-    def _check_echo(self, expected: bytes):
-        echo = self.transport.read(len(expected))
-        if echo != expected:
-            raise RuntimeError(f"Protocol Echo mismatch! Expected: {expected.hex()}, Got: {echo.hex()}")
+    # ------------------------------------------------------------------ #
+    # Download Agent upload
+    # ------------------------------------------------------------------ #
+    @staticmethod
+    def _checksum16(data: bytes) -> int:
+        return sum(data) & 0xFFFF
 
-    def _check_status(self):
-        status = self.transport.read(2)
-        if len(status) < 2 or struct.unpack(">H", status)[0] != 0:
-            raise RuntimeError(f"BROM returned error status: {status.hex()}")
+    def send_da(self, da_address: int, da_data: bytes, sig_len: int = 0,
+                block: int = 0x1000) -> int:
+        """
+        Upload a Download Agent to SRAM/DRAM at da_address. Returns the device
+        checksum. Framing: cmd, address, size, sig_len, status, data blocks,
+        device checksum (2 bytes), status.
+        """
+        size = len(da_data)
+        self._cmd(BROMCommands.SEND_DA)
+        self._echo(struct.pack(">I", da_address))
+        self._echo(struct.pack(">I", size))
+        self._echo(struct.pack(">I", sig_len))
+        self._expect_ok()
+
+        sent = 0
+        while sent < size:
+            chunk = da_data[sent:sent + block]
+            self.transport.write(chunk)
+            sent += len(chunk)
+
+        dev_checksum = struct.unpack(">H", self.transport.read(2))[0]
+        self._expect_ok()
+        local = self._checksum16(da_data)
+        if dev_checksum != local:
+            raise BROMError(f"DA checksum mismatch: device 0x{dev_checksum:04X} "
+                            f"!= local 0x{local:04X}")
+        logger.info("DA uploaded (%d bytes) to 0x%08X, checksum 0x%04X OK", size, da_address, dev_checksum)
+        return dev_checksum
+
+    def jump_da(self, da_address: int) -> bool:
+        """Transfer execution to the uploaded DA."""
+        self._cmd(BROMCommands.JUMP_DA)
+        self._echo(struct.pack(">I", da_address))
+        self._expect_ok()
+        logger.info("Jumped to DA at 0x%08X", da_address)
+        return True

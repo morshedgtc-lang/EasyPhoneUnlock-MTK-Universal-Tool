@@ -46,7 +46,7 @@ class MtkEngine(DeviceEngine):
 
     def _ensure_da(self):
         if self.da is None:
-            self.da = DAHandler(self.transport)
+            self.da = DAHandler(self.transport, self.brom)
 
     def flash(self, steps: List[dict], safety: SafetyConfig) -> None:
         self._ensure_da()

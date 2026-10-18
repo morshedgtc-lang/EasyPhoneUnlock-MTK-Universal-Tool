@@ -27,42 +27,59 @@ class DAHandler:
     Communicates via raw USB bulk endpoints or high-speed VCOM.
     """
 
-    def __init__(self, transport):
+    def __init__(self, transport, brom=None):
         self.transport = transport
+        self.brom = brom          # BROMProtocol, used to upload DA via send_da/jump_da
         self.storage_type = "UNKNOWN"
         self.storage_size = 0
         self.block_size = 512
 
-    def load_da1(self, da1_path: str, load_addr: int = 0x40000000) -> bool:
+    def load_da1(self, da1_path: str, load_addr: int = 0x200000) -> bool:
         """
-        Loads Stage 1 Download Agent binary into target internal SRAM/DRAM.
+        Upload Stage-1 DA into internal SRAM via the BROM send_da command and
+        jump to it. The checksum is verified inside brom.send_da.
         """
         if not os.path.exists(da1_path):
             logger.error(f"DA1 binary file not found: {da1_path}")
             return False
+        if self.brom is None:
+            raise RuntimeError("DAHandler needs a BROM instance to upload DA1.")
 
         with open(da1_path, "rb") as f:
             data = f.read()
-
-        logger.info(f"Uploading DA1 ({len(data)} bytes) to address 0x{load_addr:08X}...")
-        # Write binary chunk protocol
+        logger.info(f"Uploading DA1 ({len(data)} bytes) to 0x{load_addr:08X} via BROM...")
+        self.brom.send_da(load_addr, data)
+        self.brom.jump_da(load_addr)
         return True
 
     def init_dram(self, emi_settings: Optional[bytes] = None) -> bool:
         """
-        Initializes DRAM / LPDDR controller using EMI calibration tables.
+        Trigger DRAM/EMI calibration. DA1 performs the calibration on-device; the
+        host issues the init command and waits for the ready ack.
+        NOTE: the exact DA1 command set is DA-binary-specific and finalized on
+        hardware. The host-side sequencing lives here.
         """
-        logger.info("Initializing DRAM (EMI RAM Calibration)...")
-        # In actual DA protocol, this sends memory timings or preloader settings
-        time.sleep(0.1)
-        logger.info("DRAM initialization complete.")
+        logger.info("Initializing DRAM (EMI calibration)...")
+        # --- DA1 MEM_INIT command exchange goes here (DA-binary specific) ---
+        time.sleep(0.05)
+        logger.info("DRAM initialization requested.")
         return True
 
-    def jump_da2(self, da2_path: str, load_addr: int = 0x42000000) -> bool:
+    def jump_da2(self, da2_path: str, load_addr: int = 0x40000000) -> bool:
         """
-        Uploads and executes Stage 2 Download Agent (High-speed storage engine).
+        Upload the Stage-2 (storage) DA into DRAM and hand execution to it. After
+        this the device speaks the DA2 storage protocol used by read/write/format.
         """
-        logger.info(f"Loading DA2 storage engine ({da2_path}) to 0x{load_addr:08X}...")
+        if not os.path.exists(da2_path):
+            logger.error(f"DA2 binary file not found: {da2_path}")
+            return False
+        if self.brom is None:
+            raise RuntimeError("DAHandler needs a BROM instance to upload DA2.")
+        with open(da2_path, "rb") as f:
+            data = f.read()
+        logger.info(f"Uploading DA2 storage engine ({len(data)} bytes) to 0x{load_addr:08X}...")
+        self.brom.send_da(load_addr, data)
+        self.brom.jump_da(load_addr)
         return True
 
     def write_partition(self, partition_name: str, start_address: int, file_path: str, progress_cb: Optional[Callable[[int, int], None]] = None) -> bool:
