@@ -19,7 +19,7 @@ from src.gui.theme import QSS, apply_acrylic
 from src.gui.worker import WORKFLOWS, DeviceInfoWorker, FirmwareLoadWorker, OperationWorker
 
 SENSITIVE = {"FRP_RESET", "NETWORK_UNLOCK", "IMEI_REPAIR", "BOOTLOADER_UNLOCK", "BACKUP_SECURITY"}
-SERVER_DEFAULT = "http://127.0.0.1:8000"
+SERVER_DEFAULT = "https://epu-api-production.up.railway.app"
 
 
 class ConsentDialog(QDialog):
