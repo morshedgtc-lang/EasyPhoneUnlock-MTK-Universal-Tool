@@ -26,7 +26,18 @@ QSS = f"""
 
 QLabel#H1 {{ font-size: 22px; font-weight: 700; color: #ffffff; }}
 QLabel#Sub {{ color: #9aa0c8; font-size: 12px; }}
+QLabel#Hint {{ color: #6b7099; font-size: 10px; }}
+QLabel#Brand {{ font-size: 20px; font-weight: 800; letter-spacing: 1px; color: #ffffff; }}
 QLabel.badge {{ color: {ACCENT2}; font-weight: 600; }}
+
+/* Centered login card */
+#LoginCard {{
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 18px;
+}}
+#SectionTitle {{ font-size: 12px; font-weight: 700; color: {ACCENT2};
+    letter-spacing: 1px; text-transform: uppercase; }}
 
 /* Inputs */
 QLineEdit, QComboBox {{
