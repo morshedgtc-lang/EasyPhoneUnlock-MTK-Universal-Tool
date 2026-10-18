@@ -15,6 +15,8 @@ def _load() -> dict:
 def chip_by_hw_code(hw_code: int) -> Optional[dict]:
     """Return {'name', ...chip fields} for a detected hw_code, or None."""
     for name, data in _load().get("chips", {}).items():
+        if "hw_code" not in data:  # non-MTK chips are identified by platform, not hw_code
+            continue
         try:
             if int(str(data.get("hw_code", "0")), 16) == hw_code:
                 return {"name": name, **data}

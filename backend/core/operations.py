@@ -23,18 +23,21 @@ OPERATION_COSTS: dict[str, int] = {
 }
 
 # which vault payload names a given operation's grant is allowed to fetch
+# Loader names per platform: MTK = da1/da2, Qualcomm = loader (Firehose),
+# Unisoc = fdl1/fdl2. Every op may fetch its own platform's loaders.
+_ALL_LOADERS = ["da1", "da2", "loader", "fdl1", "fdl2"]
 OPERATION_PAYLOADS: dict[str, list[str]] = {
-    "SLA_BYPASS": ["da1", "da2", "sla_payload"],
-    "FLASH_FIRMWARE": ["da1", "da2"],
-    "FRP_RESET": ["da1", "da2"],
-    "FORMAT_PARTITION": ["da1", "da2"],
-    "NVRAM_REPAIR": ["da1", "da2"],
-    "BOOTLOADER_UNLOCK": ["da1", "da2", "sla_payload"],
-    "READBACK_DUMP": ["da1", "da2"],
-    "NETWORK_UNLOCK": ["da1", "da2"],
-    "IMEI_REPAIR": ["da1", "da2"],
-    "BACKUP_FLASH": ["da1", "da2"],
-    "BACKUP_SECURITY": ["da1", "da2"],
+    "SLA_BYPASS": _ALL_LOADERS + ["sla_payload"],
+    "FLASH_FIRMWARE": _ALL_LOADERS,
+    "FRP_RESET": _ALL_LOADERS,
+    "FORMAT_PARTITION": _ALL_LOADERS,
+    "NVRAM_REPAIR": _ALL_LOADERS,
+    "BOOTLOADER_UNLOCK": _ALL_LOADERS + ["sla_payload"],
+    "READBACK_DUMP": _ALL_LOADERS,
+    "NETWORK_UNLOCK": _ALL_LOADERS,
+    "IMEI_REPAIR": _ALL_LOADERS,
+    "BACKUP_FLASH": _ALL_LOADERS,
+    "BACKUP_SECURITY": _ALL_LOADERS,
 }
 
 # Operations that change device identity / remove protections. These REQUIRE

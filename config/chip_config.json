@@ -739,6 +739,24 @@
       "arch": "aarch64",
       "da_payload_addr": "0x201000",
       "brom_payload_addr": "0x100A00"
+    },
+    "SM6115": {
+      "name": "SM6115",
+      "aliases": "Snapdragon 662 / 6s Gen 1 (4G)",
+      "arch": "aarch64",
+      "platform": "qualcomm"
+    },
+    "SM4250": {
+      "name": "SM4250",
+      "aliases": "Snapdragon 460",
+      "arch": "aarch64",
+      "platform": "qualcomm"
+    },
+    "SC9863A": {
+      "name": "SC9863A",
+      "aliases": "Unisoc SC9863A",
+      "arch": "aarch64",
+      "platform": "unisoc"
     }
   },
   "usb_identifiers": {

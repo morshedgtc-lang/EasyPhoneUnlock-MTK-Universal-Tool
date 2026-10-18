@@ -56,5 +56,14 @@ def label(operation: str) -> str:
     return OPERATION_LABELS.get(operation, operation)
 
 
-def payloads_for(operation: str) -> List[str]:
+PLATFORM_LOADERS: Dict[str, List[str]] = {
+    "mtk": ["da1", "da2"],
+    "qualcomm": ["loader"],            # signed Firehose programmer
+    "unisoc": ["fdl1", "fdl2"],        # Spreadtrum FDL1 / FDL2
+}
+
+
+def payloads_for(operation: str, platform: str = "mtk") -> List[str]:
+    if platform in PLATFORM_LOADERS and operation in OPERATION_PAYLOADS:
+        return PLATFORM_LOADERS[platform]
     return OPERATION_PAYLOADS.get(operation, ["da1", "da2"])

@@ -1,4 +1,4 @@
-"""Catalog endpoint tests + chip/device data integrity."""
+﻿"""Catalog endpoint tests + chip/device data integrity."""
 import pytest
 
 
@@ -17,7 +17,7 @@ def test_chips_endpoint(client):
     chips = r.json()["chips"]
     assert len(chips) >= 60
     # A few well-known hw_codes must be present and correct.
-    by_code = {c["hw_code"]: c["name"] for c in chips.values()}
+    by_code = {c.get("hw_code"): c["name"] for c in chips.values() if c.get("hw_code")}
     assert by_code.get("0x0766") == "MT6765"
     assert by_code.get("0x0989") == "MT6833"
     assert by_code.get("0x6580") == "MT6580"
@@ -55,3 +55,4 @@ def test_every_model_chip_exists():
             if chip not in known:
                 missing.append((b, m, chip))
     assert not missing, f"models referencing unknown chips: {missing}"
+

@@ -225,6 +225,14 @@
             "BACKUP_FLASH",
             "BACKUP_SECURITY"
           ]
+        },
+        "Galaxy A03 Core (SM-A032F)": {
+          "chip": "SC9863A",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH"
+          ]
         }
       }
     },
@@ -316,6 +324,14 @@
             "IMEI_REPAIR",
             "BACKUP_FLASH",
             "BACKUP_SECURITY"
+          ]
+        },
+        "A5 4G (CPH2727)": {
+          "chip": "SM6115",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH"
           ]
         }
       }
@@ -667,6 +683,14 @@
             "BACKUP_FLASH",
             "BACKUP_SECURITY"
           ]
+        },
+        "A48 (A665L)": {
+          "chip": "SC9863A",
+          "operations": [
+            "FLASH_FIRMWARE",
+            "FRP_RESET",
+            "BACKUP_FLASH"
+          ]
         }
       }
     },
@@ -891,26 +915,12 @@
     },
     "OnePlus": {
       "models": {
-        "Nord N20 SE (CPH2469)": {
-          "chip": "MT6765",
+        "Nord N100 (BE2013)": {
+          "chip": "SM4250",
           "operations": [
             "FLASH_FIRMWARE",
             "FRP_RESET",
-            "NETWORK_UNLOCK",
-            "IMEI_REPAIR",
-            "BACKUP_FLASH",
-            "BACKUP_SECURITY"
-          ]
-        },
-        "Nord CE 2 (IV2201)": {
-          "chip": "MT6877",
-          "operations": [
-            "FLASH_FIRMWARE",
-            "FRP_RESET",
-            "NETWORK_UNLOCK",
-            "IMEI_REPAIR",
-            "BACKUP_FLASH",
-            "BACKUP_SECURITY"
+            "BACKUP_FLASH"
           ]
         }
       }
