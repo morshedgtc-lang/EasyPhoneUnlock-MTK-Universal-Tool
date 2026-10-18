@@ -26,18 +26,25 @@ QSS = f"""
 
 QLabel#H1 {{ font-size: 22px; font-weight: 700; color: #ffffff; }}
 QLabel#Sub {{ color: #9aa0c8; font-size: 12px; }}
-QLabel#Hint {{ color: #6b7099; font-size: 10px; }}
-QLabel#Brand {{ font-size: 20px; font-weight: 800; letter-spacing: 1px; color: #ffffff; }}
 QLabel.badge {{ color: {ACCENT2}; font-weight: 600; }}
+
+/* Section heading on the left panel */
+QLabel#Section {{
+    color: #7f86b0; font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    padding: 2px 0 2px 0; margin-top: 6px;
+}}
+QLabel#FieldLabel {{ color: #aeb4e0; font-size: 12px; font-weight: 600; }}
 
 /* Centered login card */
 #LoginCard {{
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 18px;
+    border-radius: 16px;
 }}
-#SectionTitle {{ font-size: 12px; font-weight: 700; color: {ACCENT2};
-    letter-spacing: 1px; text-transform: uppercase; }}
+#CreditPill {{
+    background: rgba(25,211,197,0.14); border: 1px solid rgba(25,211,197,0.4);
+    border-radius: 13px; padding: 5px 14px; color: {ACCENT2}; font-weight: 700;
+}}
 
 /* Inputs */
 QLineEdit, QComboBox {{
@@ -112,6 +119,36 @@ QSlider::handle:horizontal {{
     background: #fff; width: 16px; height: 16px; margin: -6px 0; border-radius: 8px;
 }}
 """
+
+
+def load_svg_pixmap(path: str, width: int, height: int):
+    """Render an SVG file to a crisp QPixmap at the given size."""
+    from PyQt6.QtCore import QByteArray, Qt
+    from PyQt6.QtGui import QImage, QPainter, QPixmap
+    from PyQt6.QtSvg import QSvgRenderer
+    try:
+        with open(path, "rb") as f:
+            renderer = QSvgRenderer(QByteArray(f.read()))
+        img = QImage(width, height, QImage.Format.Format_ARGB32)
+        img.fill(Qt.GlobalColor.transparent)
+        p = QPainter(img)
+        renderer.render(p)
+        p.end()
+        return QPixmap.fromImage(img)
+    except Exception:
+        return None
+
+
+def app_icon():
+    """QIcon for the window/taskbar, from the bundled .ico (falls back to svg)."""
+    from PyQt6.QtGui import QIcon
+    from src.core.paths import asset_path
+    for name in ("icon.ico", "icon.svg"):
+        path = asset_path(name)
+        import os
+        if os.path.isfile(path):
+            return QIcon(path)
+    return QIcon()
 
 
 def apply_acrylic(win) -> None:

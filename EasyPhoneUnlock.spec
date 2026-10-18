@@ -13,10 +13,14 @@ a = Analysis(
     datas=[
         ('config/chip_config.json', 'config'),
         ('config/device_models.json', 'config'),
+        ('src/gui/assets/icon.svg', 'src/gui/assets'),
+        ('src/gui/assets/icon.ico', 'src/gui/assets'),
+        ('src/gui/assets/logo.svg', 'src/gui/assets'),
     ],
     hiddenimports=[
         'serial', 'serial.tools.list_ports',
         'PyQt6.QtCore', 'PyQt6.QtGui', 'PyQt6.QtWidgets',
+        'PyQt6.QtSvg',
     ],
     hookspath=[],
     runtime_hooks=[],
@@ -41,5 +45,5 @@ exe = EXE(
     runtime_tmpdir=None,
     console=False,          # windowed GUI (no console)
     disable_windowed_traceback=False,
-    icon=None,              # drop an icon.ico here to brand it
+    icon='src/gui/assets/icon.ico',
 )

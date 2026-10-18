@@ -24,6 +24,11 @@ def cache_dir() -> str:
     return base
 
 
+def asset_path(filename: str) -> str:
+    """GUI asset (svg/ico/png) path — bundled under src/gui/assets."""
+    return os.path.join(resource_base(), "src", "gui", "assets", filename)
+
+
 def config_path(filename: str) -> str:
     """Prefer a server-synced cached copy; fall back to the bundled config."""
     cached = os.path.join(cache_dir(), filename)

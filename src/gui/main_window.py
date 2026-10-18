@@ -15,8 +15,8 @@ from src.auth.license_client import LicenseClient
 from src.core import devices
 from src.core.safety import is_protected
 from src.core.scatter.scatter_parser import ScatterParser
-from src.gui.assets import MARK_SVG, app_icon, svg_pixmap
-from src.gui.theme import QSS, apply_acrylic
+from src.core.paths import asset_path
+from src.gui.theme import QSS, app_icon, apply_acrylic, load_svg_pixmap
 from src.gui.worker import DeviceInfoWorker, FirmwareLoadWorker, OperationWorker
 
 SENSITIVE = {"FRP_RESET", "NETWORK_UNLOCK", "IMEI_REPAIR", "BOOTLOADER_UNLOCK", "BACKUP_SECURITY"}
@@ -69,6 +69,7 @@ class MainWindow(QWidget):
         self.setObjectName("Root")
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setWindowIcon(app_icon())
         self.resize(1080, 700)
         self._drag = None
         self.worker: OperationWorker | None = None
@@ -79,7 +80,6 @@ class MainWindow(QWidget):
         self.device_info: dict = {}
 
         self.lic = LicenseClient(server_url=server_url)
-        self.setWindowIcon(app_icon())
 
         root = QVBoxLayout(self); root.setContentsMargins(16, 16, 16, 16)
         self.glass = QFrame(); self.glass.setObjectName("Glass")
@@ -98,8 +98,7 @@ class MainWindow(QWidget):
     # ----------------------------- chrome ----------------------------- #
     def _title_bar(self) -> QWidget:
         bar = QWidget(); bar.setObjectName("TitleBar"); bar.setFixedHeight(46)
-        h = QHBoxLayout(bar); h.setContentsMargins(14, 0, 12, 0); h.setSpacing(10)
-        mark = QLabel(); mark.setPixmap(svg_pixmap(MARK_SVG, 24)); h.addWidget(mark)
+        h = QHBoxLayout(bar); h.setContentsMargins(18, 0, 12, 0)
         t = QLabel("EASY PHONE UNLOCK  •  MTK Universal Tool"); t.setObjectName("TitleLabel")
         h.addWidget(t); h.addStretch(1)
         mini = QPushButton("–"); mini.setObjectName("Chip"); mini.setFixedWidth(40)
@@ -125,46 +124,49 @@ class MainWindow(QWidget):
 
     # ----------------------------- login ------------------------------ #
     def _login_page(self) -> QWidget:
-        # A fixed-width card centered both horizontally and vertically.
         page = QWidget()
-        outer_v = QVBoxLayout(page); outer_v.setContentsMargins(0, 0, 0, 0)
-        outer_v.addStretch(1)
-        row_h = QHBoxLayout(); row_h.addStretch(1)
+        # Outer layout centers the card both horizontally and vertically.
+        outer = QVBoxLayout(page); outer.setContentsMargins(0, 0, 0, 0)
+        outer.addStretch(1)
+        row = QHBoxLayout(); row.addStretch(1)
 
         card = QFrame(); card.setObjectName("LoginCard"); card.setFixedWidth(380)
-        c = QVBoxLayout(card); c.setContentsMargins(34, 30, 34, 30); c.setSpacing(10)
-        c.setAlignment(Qt.AlignmentFlag.AlignTop)
+        v = QVBoxLayout(card); v.setContentsMargins(32, 30, 32, 30); v.setSpacing(10)
+        v.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        logo = QLabel(); logo.setPixmap(svg_pixmap(MARK_SVG, 72))
-        logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        c.addWidget(logo)
-        name = QLabel("EASY PHONE UNLOCK"); name.setObjectName("Brand")
-        name.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        tag = QLabel("MTK Universal Tool"); tag.setObjectName("Sub")
-        tag.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        c.addWidget(name); c.addWidget(tag); c.addSpacing(16)
+        logo = QLabel(); logo.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        pm = load_svg_pixmap(asset_path("logo.svg"), 300, 75)
+        if pm:
+            logo.setPixmap(pm)
+        v.addWidget(logo)
+
+        sub = QLabel("Sign in to continue"); sub.setObjectName("Sub")
+        sub.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        v.addWidget(sub); v.addSpacing(8)
 
         self.in_user = QLineEdit(); self.in_user.setPlaceholderText("Username")
         self.in_pass = QLineEdit(); self.in_pass.setPlaceholderText("Password")
         self.in_pass.setEchoMode(QLineEdit.EchoMode.Password)
         self.in_pass.returnPressed.connect(self._do_login)
-        c.addWidget(self.in_user); c.addWidget(self.in_pass)
+        v.addWidget(self.in_user); v.addWidget(self.in_pass)
 
+        brow = QHBoxLayout()
         btn_login = QPushButton("Sign In"); btn_login.setObjectName("Primary")
         btn_login.clicked.connect(self._do_login)
-        c.addSpacing(4); c.addWidget(btn_login)
-        btn_reg = QPushButton("Create account"); btn_reg.clicked.connect(self._do_register)
-        c.addWidget(btn_reg)
+        btn_reg = QPushButton("Register"); btn_reg.clicked.connect(self._do_register)
+        brow.addWidget(btn_login, 2); brow.addWidget(btn_reg, 1)
+        v.addSpacing(4); v.addLayout(brow)
 
         self.login_msg = QLabel(""); self.login_msg.setObjectName("Sub")
-        self.login_msg.setAlignment(Qt.AlignmentFlag.AlignCenter); self.login_msg.setWordWrap(True)
-        c.addSpacing(6); c.addWidget(self.login_msg)
-        self.hwid_lbl = QLabel(f"PC ID: {self.lic.hwid}"); self.hwid_lbl.setObjectName("Hint")
-        self.hwid_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        c.addWidget(self.hwid_lbl)
+        self.login_msg.setWordWrap(True); self.login_msg.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        v.addWidget(self.login_msg)
 
-        row_h.addWidget(card); row_h.addStretch(1)
-        outer_v.addLayout(row_h); outer_v.addStretch(1)
+        self.hwid_lbl = QLabel(f"PC ID: {self.lic.hwid}"); self.hwid_lbl.setObjectName("Sub")
+        self.hwid_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        v.addSpacing(4); v.addWidget(self.hwid_lbl)
+
+        row.addWidget(card); row.addStretch(1)
+        outer.addLayout(row); outer.addStretch(1)
         return page
 
     def _do_login(self):
@@ -184,45 +186,55 @@ class MainWindow(QWidget):
         grid.setContentsMargins(20, 10, 20, 20); grid.setHorizontalSpacing(18)
 
         top = QHBoxLayout()
-        self.welcome = QLabel("Welcome"); self.welcome.setObjectName("H1")
-        self.credits_lbl = QLabel("Credits: -"); self.credits_lbl.setProperty("class", "badge")
-        top.addWidget(self.welcome); top.addStretch(1); top.addWidget(self.credits_lbl)
+        brand_logo = QLabel()
+        pm = load_svg_pixmap(asset_path("logo.svg"), 200, 50)
+        if pm:
+            brand_logo.setPixmap(pm)
+        top.addWidget(brand_logo)
+        top.addStretch(1)
+        self.welcome = QLabel("Welcome"); self.welcome.setObjectName("Sub")
+        self.credits_lbl = QLabel("Credits: -"); self.credits_lbl.setObjectName("CreditPill")
+        top.addWidget(self.welcome); top.addSpacing(10); top.addWidget(self.credits_lbl)
         logout = QPushButton("Logout"); logout.setObjectName("Chip"); logout.clicked.connect(self._logout)
         top.addSpacing(12); top.addWidget(logout)
         grid.addLayout(top, 0, 0, 1, 2)
 
-        def section(text):
-            lbl = QLabel(text); lbl.setObjectName("SectionTitle"); return lbl
-
-        # Left panel — Step 1 device, Step 2 firmware, Step 3 operations
+        # ---- Left panel: DEVICE / FIRMWARE / OPERATIONS ----
         left = QVBoxLayout(); left.setSpacing(6)
-        left.addWidget(section("1 · Device"))
-        left.addWidget(QLabel("Brand"))
+
+        def section(title):
+            lbl = QLabel(title); lbl.setObjectName("Section"); left.addWidget(lbl)
+
+        def field(title):
+            lbl = QLabel(title); lbl.setObjectName("FieldLabel"); left.addWidget(lbl)
+
+        section("DEVICE")
+        field("Brand")
         self.cb_brand = QComboBox(); self.cb_brand.addItems(devices.brands())
         self.cb_brand.currentTextChanged.connect(self._brand_changed)
         left.addWidget(self.cb_brand)
-        left.addWidget(QLabel("Model"))
+        field("Model")
         self.cb_model = QComboBox(); self.cb_model.currentTextChanged.connect(self._model_changed)
         left.addWidget(self.cb_model)
         btn_read = QPushButton("\U0001F50C  Read Device Info"); btn_read.setObjectName("Primary")
         btn_read.clicked.connect(self._read_info)
-        left.addSpacing(2); left.addWidget(btn_read)
-        self.info_lbl = QLabel("Device: not connected"); self.info_lbl.setObjectName("Sub")
+        left.addWidget(btn_read)
+        self.info_lbl = QLabel("Not connected"); self.info_lbl.setObjectName("Sub")
         self.info_lbl.setWordWrap(True); self.info_lbl.setTextFormat(Qt.TextFormat.RichText)
         left.addWidget(self.info_lbl)
 
-        left.addSpacing(10); left.addWidget(section("2 · Firmware"))
-        btn_fw = QPushButton("\U0001F4C1  Load Scatter / OFP File")
+        section("FIRMWARE")
+        btn_fw = QPushButton("\U0001F4C1  Load Scatter / OFP")
         btn_fw.clicked.connect(self._load_firmware)
         left.addWidget(btn_fw)
         self.fw_lbl = QLabel("No firmware loaded"); self.fw_lbl.setObjectName("Sub"); self.fw_lbl.setWordWrap(True)
         left.addWidget(self.fw_lbl)
 
-        left.addSpacing(10); left.addWidget(section("3 · Operations"))
+        section("OPERATIONS")
         self.ops_box = QVBoxLayout(); self.ops_box.setSpacing(6); left.addLayout(self.ops_box)
-        left.addStretch(1)
 
-        left.addWidget(section("Speed"))
+        left.addStretch(1)
+        field("I/O Speed")
         self.slider = QSlider(Qt.Orientation.Horizontal); self.slider.setRange(1, 10); self.slider.setValue(6)
         left.addWidget(self.slider)
 
@@ -231,7 +243,7 @@ class MainWindow(QWidget):
 
         # Right panel: partition table (also the live display) + console + progress
         right = QVBoxLayout()
-        right.addWidget(section("Partitions / Live Operation"))
+        right.addWidget(QLabel("Partitions / Live Operation"))
         self.table = QTableWidget(0, len(self.COLS))
         self.table.setHorizontalHeaderLabels(self.COLS)
         hdr = self.table.horizontalHeader()

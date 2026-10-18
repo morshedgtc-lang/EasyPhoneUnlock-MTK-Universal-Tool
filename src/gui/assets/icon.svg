@@ -1,0 +1,32 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="epuBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7c5cff"/>
+      <stop offset="1" stop-color="#19d3c5"/>
+    </linearGradient>
+    <linearGradient id="epuBolt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#eaf6ff"/>
+    </linearGradient>
+  </defs>
+
+  <!-- badge -->
+  <rect x="16" y="16" width="224" height="224" rx="52" fill="url(#epuBg)"/>
+  <rect x="16" y="16" width="224" height="224" rx="52" fill="none"
+        stroke="#ffffff" stroke-opacity="0.18" stroke-width="2"/>
+
+  <!-- phone body -->
+  <rect x="86" y="52" width="84" height="152" rx="18"
+        fill="#0e1024" fill-opacity="0.78"
+        stroke="#ffffff" stroke-opacity="0.35" stroke-width="3"/>
+  <!-- speaker -->
+  <rect x="116" y="64" width="24" height="5" rx="2.5" fill="#ffffff" fill-opacity="0.45"/>
+
+  <!-- flash bolt on the screen -->
+  <path d="M139 86 L104 140 L126 140 L117 178 L154 118 L131 118 Z"
+        fill="url(#epuBolt)"/>
+
+  <!-- unlock ring (open padlock shackle) top-right -->
+  <path d="M176 70 v-10 a16 16 0 0 1 32 0 v10"
+        fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round"/>
+</svg>
