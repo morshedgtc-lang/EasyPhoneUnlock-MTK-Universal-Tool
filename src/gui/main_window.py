@@ -16,7 +16,7 @@ from src.core import devices
 from src.core.safety import is_protected
 from src.core.scatter.scatter_parser import ScatterParser
 from src.gui.theme import QSS, apply_acrylic
-from src.gui.worker import WORKFLOWS, DeviceInfoWorker, FirmwareLoadWorker, OperationWorker
+from src.gui.worker import DeviceInfoWorker, FirmwareLoadWorker, OperationWorker
 
 SENSITIVE = {"FRP_RESET", "NETWORK_UNLOCK", "IMEI_REPAIR", "BOOTLOADER_UNLOCK", "BACKUP_SECURITY"}
 SERVER_DEFAULT = "https://epu-api-production.up.railway.app"
@@ -74,6 +74,7 @@ class MainWindow(QWidget):
         self.info_worker: DeviceInfoWorker | None = None
         self.fw_worker: FirmwareLoadWorker | None = None
         self.scatter_partitions = []
+        self.firmware_dir = ""      # where partition images live (for flash)
         self.device_info: dict = {}
 
         self.lic = LicenseClient(server_url=server_url)
@@ -314,7 +315,9 @@ class MainWindow(QWidget):
             QMessageBox.critical(self, "Firmware error", error or "Unknown error")
             self._log("err", f"Firmware load failed: {error}")
             return
+        import os
         self.scatter_partitions = fw.partitions
+        self.firmware_dir = fw.extract_dir or (os.path.dirname(fw.scatter_path) if fw.scatter_path else "")
         self.fw_lbl.setText(f"[{fw.format.upper()}] {len(fw.partitions)} partitions loaded")
         self._log("ok", f"Firmware loaded ({fw.format.upper()}): {len(fw.partitions)} partitions.")
         for n in fw.notes:
@@ -335,14 +338,27 @@ class MainWindow(QWidget):
             self.table.setItem(r, 4, QTableWidgetItem("-"))
 
     def _checked_flash_steps(self):
-        """Return [(partition, 'WRITE', file)] for checked, downloadable rows."""
+        """Return [{partition,file,start,size}] for checked, downloadable rows.
+        File is resolved to an absolute path under the firmware directory."""
+        import os
+        by_name = {p.name: p for p in self.scatter_partitions}
         steps = []
         for r in range(self.table.rowCount()):
-            if self.table.item(r, 0).checkState() == Qt.CheckState.Checked:
-                name = self.table.item(r, 1).text()
-                fname = self.table.item(r, 2).text()
-                if fname and fname.upper() != "NONE":
-                    steps.append((name, "WRITE", fname))
+            if self.table.item(r, 0).checkState() != Qt.CheckState.Checked:
+                continue
+            name = self.table.item(r, 1).text()
+            fname = self.table.item(r, 2).text()
+            if not fname or fname.upper() == "NONE":
+                continue
+            p = by_name.get(name)
+            fpath = fname
+            if not os.path.isabs(fpath) and self.firmware_dir:
+                fpath = os.path.join(self.firmware_dir, fname)
+            steps.append({
+                "partition": name, "file": fpath,
+                "start": p.linear_start if p else 0,
+                "size": p.partition_size if p else 0,
+            })
         return steps
 
     # --------------------------- operations --------------------------- #
@@ -350,15 +366,19 @@ class MainWindow(QWidget):
         if self.worker and self.worker.isRunning():
             return
         brand = self.cb_brand.currentText(); model = self.cb_model.currentText()
+        chip = devices.model_info(brand, model).get("chip", "")
         imei = serial = ""; consent = False
-        steps = None
+        flash_steps = []
+        erase_targets = []
 
         if operation == "FLASH_FIRMWARE":
-            steps = self._checked_flash_steps()
-            if not steps:
+            flash_steps = self._checked_flash_steps()
+            if not flash_steps:
                 QMessageBox.information(self, "No firmware",
-                                        "Load a scatter file and tick the partitions to flash first.")
+                                        "Load a scatter/OFP file and tick the partitions to flash first.")
                 return
+        elif operation == "FRP_RESET":
+            erase_targets = ["frp", "metadata"]
 
         if operation in SENSITIVE:
             dlg = ConsentDialog(self, devices.label(operation))
@@ -367,9 +387,9 @@ class MainWindow(QWidget):
                 return
             imei, serial, consent = dlg.values()
 
-        # Protected-partition safety confirmation (from the actual steps).
-        step_parts = [s[0] for s in (steps or [])] or [p for (p, a) in WORKFLOWS.get(operation, [])]
-        protected = [p for p in step_parts if is_protected(p)]
+        # Protected-partition safety confirmation (from the real targets).
+        targets = [s["partition"] for s in flash_steps] + erase_targets
+        protected = [p for p in targets if is_protected(p)]
         if protected:
             msg = ("These PROTECTED partitions will be modified:\n  - "
                    + "\n  - ".join(sorted(set(protected)))
@@ -381,11 +401,12 @@ class MainWindow(QWidget):
         if operation != "FLASH_FIRMWARE":
             self.table.setRowCount(0)
         self.progress.setValue(0)
-        self._log("info", f"=== {devices.label(operation)} :: {brand} {model} ===")
+        self._log("info", f"=== {devices.label(operation)} :: {brand} {model} [{chip}] ===")
 
         self.worker = OperationWorker(
             self.lic, operation, devices.payloads_for(operation),
-            brand, model, imei, serial, consent, confirm_cb=lambda m: True, steps=steps,
+            brand, model, chip, imei, serial, consent, confirm_cb=lambda m: True,
+            flash_steps=flash_steps, erase_targets=erase_targets,
         )
         self.worker.log.connect(self._log)
         self.worker.progress.connect(self.progress.setValue)
